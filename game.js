@@ -11,12 +11,9 @@ var wallBack
 var wallLeft
 var wallRight;
 var wallFront;
-var dude;
+var dudes = [];
 var food;
-
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
-// var light2 = new THREE.SpotLight( 0xffffff );
-// var light3 = new THREE.SpotLight( 0xffffff );
 
 var controls = {
     left: false,
@@ -90,11 +87,13 @@ window.addEventListener("keyup", function(event){
 });
 
 function createDude(scale, X, Y, Z){
+    var dude;
     var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
     var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
     var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
-    dude             = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
-
+    //find next open space in the array
+    dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
+    dudes.push(dude);
     dude.castShadow    = true;
     dude.receiveShadow = false;
     dude.position.set(X, Y, Z);
@@ -113,8 +112,23 @@ function createDude(scale, X, Y, Z){
                 var dudeY = dude.position.y;
                 var dudeZ = dude.position.z;
                 var dudeSize = dude.geometry.parameters.height+1;
-                scene.remove(dude);
-                createDude(dudeSize, dudeX, dudeY, dudeZ);
+                var dudeIndex;
+                if (dudeSize >=5){
+                    dudeIndex = dudes.indexOf(this);
+                    scene.remove(this);
+                    dudes.splice(dudeIndex, 1);
+                    for (var a=0; a<10; a++){
+                        createDude(2, dudeX, dudeY, dudeZ);
+                    }
+                    console.dir(dudes);
+                } else {
+                    console.log(dudes.indexOf(this));
+                    dudeIndex = dudes.indexOf(this);
+                    scene.remove(this);
+                    dudes.splice(dudeIndex, 1);
+                    console.dir(dudes);
+                    createDude(dudeSize, dudeX, dudeY, dudeZ);
+                }
   					}
 				}
 		)
@@ -221,21 +235,24 @@ var dudeSpeed = 8;
 function updateDude(){
   // print(dude.position);
   if(controls.left){
-    //dude.setLinearVelocity(dude.getWorldDirection().multiplyScalar(5))
-    dude.setLinearVelocity(new THREE.Vector3(-dudeSpeed,0,0));
-    // dude.__dirtyPosition = true;
+    dudes.forEach(function(element) {
+        element.setLinearVelocity(new THREE.Vector3(-dudeSpeed,0,0));
+    });
   }
   if(controls.right){
-    dude.setLinearVelocity(new THREE.Vector3(dudeSpeed,0,0));
-    dude.__dirtyPosition = true;
+    dudes.forEach(function(element) {
+        element.setLinearVelocity(new THREE.Vector3(dudeSpeed,0,0));
+    });
   }
   if(controls.forward){
-    dude.setLinearVelocity(new THREE.Vector3(0,0,-dudeSpeed));
-    dude.__dirtyPosition = true;
+    dudes.forEach(function(element) {
+        element.setLinearVelocity(new THREE.Vector3(0,0,-dudeSpeed));
+    });
   }
   if(controls.backward){
-    dude.setLinearVelocity(new THREE.Vector3(0,0,dudeSpeed));
-    dude.__dirtyPosition = true;
+    dudes.forEach(function(element) {
+        element.setLinearVelocity(new THREE.Vector3(0,0,dudeSpeed));
+    });
   }
 }
 
@@ -247,7 +264,6 @@ function animate() {
     renderer.render( scene, camera );
 
     //dude.setLinearVelocity(dude.getWorldDirection().multiplyScalar(5))
-    dude.__dirtyPosition = false;
 }
 init();
 animate();
