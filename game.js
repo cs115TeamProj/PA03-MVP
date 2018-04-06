@@ -13,9 +13,9 @@ var wallRight;
 var wallFront;
 var dude;
 
-var light1 = new THREE.AmbientLight( 0xffffff,0.25);
-var light2 = new THREE.SpotLight( 0xffffff );
-var light3 = new THREE.SpotLight( 0xffffff );
+var light1 = new THREE.AmbientLight( 0xffffff,0.95);
+// var light2 = new THREE.SpotLight( 0xffffff );
+// var light3 = new THREE.SpotLight( 0xffffff );
 
 var controls = {
     left: false,
@@ -94,8 +94,8 @@ function init(){
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild( renderer.domElement ); //puts the canvas onto the page
 
-    var floorGeometry = new THREE.PlaneGeometry( 40, 20, 128 );
-    var floorMaterial = new THREE.MeshLambertMaterial({ color: 0xaaaaaa } );
+    var floorGeometry = new THREE.PlaneGeometry( 40, 40, 128 );
+    var floorMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff } );
     var pfloorMat     = new Physijs.createMaterial( floorMaterial, .9, .5);
     floor             = new Physijs.BoxMesh( floorGeometry, pfloorMat, 0);
 
@@ -107,18 +107,45 @@ function init(){
     scene.add( floor );
 
     var wallGeometry  = new THREE.PlaneGeometry( 40, 20, 100 );
-    var wallMaterial  = new THREE.MeshLambertMaterial({ color: 0x00ff00 } );
+    var wallMaterial  = new THREE.MeshLambertMaterial({ color: 0x0000ff, opacity: 0, transparent: true } );
     var pwallMat      = new Physijs.createMaterial( wallMaterial, .9, .5);
     wallBack          = new Physijs.BoxMesh( wallGeometry, pwallMat, 0);
+    wallLeft          = new Physijs.BoxMesh( wallGeometry, pwallMat, 0);
+    wallRight         = new Physijs.BoxMesh( wallGeometry, pwallMat, 0);
+    wallFront         = new Physijs.BoxMesh( wallGeometry, pwallMat, 0);
 
     wallBack.castShadow    = false;
     wallBack.receiveShadow = true;
     wallBack.position.y    = 4;
-    wallBack.position.z    = -11;
+    wallBack.position.z    = -21;
+    wallBack.rotateX(Math.PI);
     scene.add( wallBack );
 
+    wallLeft.castShadow    = false;
+    wallLeft.receiveShadow = true;
+    wallLeft.position.y    = 4;
+    wallLeft.position.x    = -20;
+    wallLeft.position.z    = -1;
+    wallLeft.rotateY(-Math.PI/2);
+    scene.add( wallLeft );
+
+    wallRight.castShadow    = false;
+    wallRight.receiveShadow = true;
+    wallRight.position.y    = 4;
+    wallRight.position.x    = 20;
+    wallRight.position.z    = -1;
+    wallRight.rotateY(Math.PI/2);
+    scene.add( wallRight );
+
+    wallFront.castShadow    = false;
+    wallFront.receiveShadow = true;
+    wallFront.position.y    = 4;
+    wallFront.position.z    = 19;
+    // wallFront.rotateX(Math.PI);
+    scene.add( wallFront );
+
     var cubeGeometry = new THREE.BoxGeometry( 2, 2, 2 );
-    var material     = new THREE.MeshLambertMaterial({ color: 0x9999ff });
+    var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
     var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
     dude             = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
 
@@ -133,17 +160,17 @@ function init(){
     // light1.shadow.camera.near = 0.5; // default
     // light1.shadow.camera.far = 500 // default
 
-    light2.castShadow = true;
-    light3.castShadow = true;
+    // light2.castShadow = true;
+    // light3.castShadow = true;
 
 
     light1.position.set( 0, 10, 0);
-    light2.position.set(-100, 100, 100);
-    light3.position.set( 0, 6, 5 )
+    // light2.position.set(-100, 100, 100);
+    // light3.position.set( 0, 6, 5 )
 
     scene.add( light1 );
-    scene.add( light2 )
-    scene.add( light3 )
+    // scene.add( light2 )
+    // scene.add( light3 )
 }
 function update_camera()
 {
@@ -166,7 +193,7 @@ function update_camera()
   }
   camera.lookAt(0,0,0);
 }
-var dudeSpeed = 5;
+var dudeSpeed = 8;
 function updateDude(){
   // print(dude.position);
   if(controls.left){
