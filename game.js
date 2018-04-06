@@ -31,10 +31,10 @@ var controls = {
 window.addEventListener("keydown", function(event){
     switch(event.key)
     {
-        case("s"):{
+        case("w"):{
           controls.forward = true;
         }; break;
-        case("w"):{
+        case("s"):{
           controls.backward = true;
         }; break;
         case("a"):{
@@ -61,10 +61,10 @@ window.addEventListener("keydown", function(event){
 window.addEventListener("keyup", function(event){
     switch(event.key)
     {
-        case("s"):{
+        case("w"):{
           controls.forward = false;
         }; break;
-        case("w"):{
+        case("s"):{
           controls.backward = false;
         }; break;
         case("a"):{
@@ -106,15 +106,15 @@ function init(){
     floor.position.z    = -1;
     scene.add( floor );
 
-    var wallGeometry  = new THREE.PlaneGeometry( 50, 20, 100 );
+    var wallGeometry  = new THREE.PlaneGeometry( 40, 20, 100 );
     var wallMaterial  = new THREE.MeshLambertMaterial({ color: 0x00ff00 } );
     var pwallMat      = new Physijs.createMaterial( wallMaterial, .9, .5);
     wallBack          = new Physijs.BoxMesh( wallGeometry, pwallMat, 0);
 
     wallBack.castShadow    = false;
     wallBack.receiveShadow = true;
-    wallBack.position.y    = 2;
-    wallBack.position.z    = -5;
+    wallBack.position.y    = 4;
+    wallBack.position.z    = -11;
     scene.add( wallBack );
 
     var cubeGeometry = new THREE.BoxGeometry( 2, 2, 2 );
@@ -164,6 +164,7 @@ function update_camera()
     camera.translateZ(-1);
     camera.__dirtyPosition = true;
   }
+  camera.lookAt(0,0,0);
 }
 var dudeSpeed = 5;
 function updateDude(){
@@ -178,20 +179,16 @@ function updateDude(){
     dude.__dirtyPosition = true;
   }
   if(controls.forward){
-    dude.setLinearVelocity(new THREE.Vector3(0,0,dudeSpeed));
-    dude.__dirtyPosition = true;
-  }
-  if(controls.backward){
     dude.setLinearVelocity(new THREE.Vector3(0,0,-dudeSpeed));
     dude.__dirtyPosition = true;
   }
+  if(controls.backward){
+    dude.setLinearVelocity(new THREE.Vector3(0,0,dudeSpeed));
+    dude.__dirtyPosition = true;
+  }
 
-  // if(!controls.left && !controls.right && !controls.forward && !controls.backward)
-  // {
-  //   dude.setLinearVelocity(new THREE.Vector3(0, 0, 0));
-  // }
 }
-var counter = 0;
+
 
 function animate() {
     requestAnimationFrame( animate );
