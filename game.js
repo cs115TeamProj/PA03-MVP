@@ -99,6 +99,25 @@ function createDude(scale, X, Y, Z){
     dude.receiveShadow = false;
     dude.position.set(X, Y, Z);
     scene.add( dude );
+    dude.addEventListener( 'collision',
+				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+  					if (other_object==food){
+                //add more food
+                foodX = randomInt(-19, 19);
+                foodZ = randomInt(-19, 19);
+    						food.position.set(foodX, 0, foodZ);
+    						food.__dirtyPosition = true;
+
+                //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
+                var dudeX = dude.position.x;
+                var dudeY = dude.position.y;
+                var dudeZ = dude.position.z;
+                var dudeSize = dude.geometry.parameters.height+1;
+                scene.remove(dude);
+                createDude(dudeSize, dudeX, dudeY, dudeZ);
+  					}
+				}
+		)
 }
 
 function init(){
@@ -171,28 +190,6 @@ function init(){
     var foodZ = randomInt(-18, 18);
     food.position.set(foodX, 0, foodZ);
     scene.add(food);
-    food.addEventListener( 'collision',
-				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-  					if (other_object==dude){
-                //add more food
-                foodX = randomInt(-19, 19);
-                foodZ = randomInt(-19, 19);
-    						this.position.set(foodX, 0, foodZ);
-    						this.__dirtyPosition = true;
-
-                //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
-                var dudeX = dude.position.x;
-                var dudeY = dude.position.y;
-                var dudeZ = dude.position.z;
-                var dudeSize = dude.geometry.parameters.height+1;
-                scene.remove(dude);
-
-                createDude(dudeSize, dudeX, dudeY, dudeZ);
-
-
-  					}
-				}
-		)
 }
 
 function randomInt(min, max) {
