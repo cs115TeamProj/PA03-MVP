@@ -12,6 +12,7 @@ var wallLeft
 var wallRight;
 var wallFront;
 var dude;
+var food;
 
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 // var light2 = new THREE.SpotLight( 0xffffff );
@@ -88,6 +89,18 @@ window.addEventListener("keyup", function(event){
     };
 });
 
+function createDude(scale, X, Y, Z){
+    var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
+    var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
+    var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+    dude             = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
+
+    dude.castShadow    = true;
+    dude.receiveShadow = false;
+    dude.position.set(X, Y, Z);
+    scene.add( dude );
+}
+
 function init(){
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMap.enabled = true;
@@ -144,34 +157,48 @@ function init(){
     // wallFront.rotateX(Math.PI);
     scene.add( wallFront );
 
-    var cubeGeometry = new THREE.BoxGeometry( 2, 2, 2 );
-    var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
-    var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
-    dude             = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
-
-    dude.castShadow    = true;
-    dude.receiveShadow = false;
-    dude.position.z    = 4;
-    scene.add( dude );
-
-    // light1.castShadow = true;
-    // light1.shadow.mapSize.width = 512; // default
-    // light1.shadow.mapSize.height = 512; // default
-    // light1.shadow.camera.near = 0.5; // default
-    // light1.shadow.camera.far = 500 // default
-
-    // light2.castShadow = true;
-    // light3.castShadow = true;
-
+    createDude(2, 0, 0, 4);
 
     light1.position.set( 0, 10, 0);
-    // light2.position.set(-100, 100, 100);
-    // light3.position.set( 0, 6, 5 )
-
     scene.add( light1 );
-    // scene.add( light2 )
-    // scene.add( light3 )
+
+    var foodGeometry = new THREE.SphereGeometry( .5, 10, 10 );
+    var foodMaterial = new THREE.MeshLambertMaterial({ color: 0xff00ff });
+    var pfoodMat     = new Physijs.createMaterial( foodMaterial, .9, .5);
+    food             = new Physijs.SphereMesh( foodGeometry, pfoodMat);
+
+    var foodX = randomInt(-18, 18);
+    var foodZ = randomInt(-18, 18);
+    food.position.set(foodX, 0, foodZ);
+    scene.add(food);
+    food.addEventListener( 'collision',
+				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+  					if (other_object==dude){
+                //add more food
+                foodX = randomInt(-19, 19);
+                foodZ = randomInt(-19, 19);
+    						this.position.set(foodX, 0, foodZ);
+    						this.__dirtyPosition = true;
+
+                //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
+                var dudeX = dude.position.x;
+                var dudeY = dude.position.y;
+                var dudeZ = dude.position.z;
+                var dudeSize = dude.geometry.parameters.height+1;
+                scene.remove(dude);
+
+                createDude(dudeSize, dudeX, dudeY, dudeZ);
+
+
+  					}
+				}
+		)
 }
+
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function update_camera()
 {
   if(controls.camLeft){
@@ -213,9 +240,7 @@ function updateDude(){
     dude.setLinearVelocity(new THREE.Vector3(0,0,dudeSpeed));
     dude.__dirtyPosition = true;
   }
-
 }
-
 
 function animate() {
     requestAnimationFrame( animate );
