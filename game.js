@@ -272,7 +272,64 @@ function updateDude(){
     didMove = true;
   }
 }
+function createAvatar(){
+    var loader = new THREE.JSONLoader();
+    loader.load("../models/suzanne.json",
+        function ( geometry, materials ) {
 
+          var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
+          var pmaterial = new Physijs.createMaterial(material,0.9,0.5);
+          var mesh = new Physijs.BoxMesh( geometry, pmaterial );
+          mesh.setDamping(0.1,0.1);
+          mesh.castShadow = true;
+          avatar = mesh;
+
+          avatarCam.position.set(0,4.5,4);
+          avatarCam.lookAt(0,4,10);
+          mesh.add(avatarCam);
+
+          avatar.translateY(20);
+          avatarCam.translateY(-4);
+          avatarCam.translateZ(3);
+          scene.add(avatar);
+        },
+        function(xhr){
+          console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );},
+        function(err){console.log("error in loading: "+err);}
+      )
+      var currIntensity=(intensity/2)-(gameState.health/2);
+      var c1 = 0xff0040;
+      var distance = 100;
+      var decay = 2.0;
+      light1 = new THREE.PointLight( c1, currIntensity, distance, decay );
+      scene.add( light1 );
+
+  //var mesh = new THREE.Mesh( geometry, material );
+}
+
+function initBearOBJ(){
+  var loader = new THREE.OBJLoader();
+  loader.load("../models/bear.obj",
+        function ( obj) {
+          console.log("loading obj file");
+          obj.scale.x=1;
+          obj.scale.y=1;
+          obj.scale.z=1;
+          obj.position.y = 2;
+          obj.position.x = -2;
+
+          scene.add(obj);
+          obj.castShadow = true;
+
+          //
+        },
+        function(xhr){
+          console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );},
+
+        function(err){
+          console.log("error in loading: "+err);}
+      )
+}
 function animate() {
     requestAnimationFrame( animate );
     updateDude();
@@ -284,4 +341,5 @@ function animate() {
 }
 
 init();
+initBearOBJ();
 animate();
