@@ -126,13 +126,13 @@ function createDude(scale, X, Y, Z){
                         createDude(2, dudeX, dudeY, dudeZ);
                     }
                     ExplodeSound.play();
-                    console.dir(dudes);
+
                 } else {
-                    console.log(dudes.indexOf(this));
+
                     dudeIndex = dudes.indexOf(this);
                     scene.remove(this);
                     dudes.splice(dudeIndex, 1);
-                    console.dir(dudes);
+
                     createDude(dudeSize, dudeX, dudeY, dudeZ);
                     expandSounds[randomInt(0, expandSounds.length-1)].play();
                 }
@@ -244,8 +244,13 @@ function update_camera()
   }
   camera.lookAt(0,0,0);
 }
-var dudeSpeed = 8;
+var dudeSpeed = 10;
 function updateDude(){
+  if (dudes.length>10){
+    dudeSpeed = 15;
+  } else if (dudes.length > 20){
+    dudeSpeed = 20;
+  }
   var didMove = false;
   if(controls.left){
     dudes.forEach(function(element) {
