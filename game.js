@@ -16,7 +16,6 @@ var dudes = [];
 var food;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 var light2 = new THREE.SpotLight( 0x0000ff);
-var avatar;
 
 var controls = {
     left: false,
@@ -296,5 +295,4 @@ function animate() {
 }
 
 init();
-initBearOBJ();
 animate();
