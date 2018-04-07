@@ -3,8 +3,12 @@ Physijs.scripts.ammo = '/js/ammo.js';
 var scene = new Physijs.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.z = 30;
-
 camera.lookAt(0,0,0);
+
+var StartSound = new Audio("Sounds/StartSound.wav");
+var ExplodeSound = new Audio("Sounds/ExplodeSound.wav");
+var expandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
+
 var renderer = new THREE.WebGLRenderer();
 var floor;
 var wallBack
@@ -14,6 +18,7 @@ var wallFront;
 var dudes = [];
 var food;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
+var light2 = new THREE.SpotLight( 0x0000ff);
 
 var controls = {
     left: false,
@@ -120,6 +125,7 @@ function createDude(scale, X, Y, Z){
                     for (var a=0; a<10; a++){
                         createDude(2, dudeX, dudeY, dudeZ);
                     }
+                    ExplodeSound.play();
                     console.dir(dudes);
                 } else {
                     console.log(dudes.indexOf(this));
@@ -128,6 +134,7 @@ function createDude(scale, X, Y, Z){
                     dudes.splice(dudeIndex, 1);
                     console.dir(dudes);
                     createDude(dudeSize, dudeX, dudeY, dudeZ);
+                    expandSounds[randomInt(0, expandSounds.length-1)].play();
                 }
   					}
 				}
@@ -192,8 +199,11 @@ function init(){
 
     createDude(2, 0, 0, 4);
 
-    light1.position.set( 0, 10, 0);
+    light1.position.set( 0, 10, 0 );
     scene.add( light1 );
+    light2.castShadow = true;
+    light2.position.set( 0, 10, 0 );
+    scene.add( light2 );
 
     var foodGeometry = new THREE.SphereGeometry( .5, 10, 10 );
     var foodMaterial = new THREE.MeshLambertMaterial({ color: 0xff00ff });
@@ -204,12 +214,15 @@ function init(){
     var foodZ = randomInt(-18, 18);
     food.position.set(foodX, 0, foodZ);
     scene.add(food);
+    StartSound.play();
 }
 
 function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+
+var lastMoveSoundTime = null;
 function update_camera()
 {
   if(controls.camLeft){
@@ -233,26 +246,30 @@ function update_camera()
 }
 var dudeSpeed = 8;
 function updateDude(){
-  // print(dude.position);
+  var didMove = false;
   if(controls.left){
     dudes.forEach(function(element) {
         element.setLinearVelocity(new THREE.Vector3(-dudeSpeed,0,0));
     });
+    didMove = true;
   }
   if(controls.right){
     dudes.forEach(function(element) {
         element.setLinearVelocity(new THREE.Vector3(dudeSpeed,0,0));
     });
+    didMove = true;
   }
   if(controls.forward){
     dudes.forEach(function(element) {
         element.setLinearVelocity(new THREE.Vector3(0,0,-dudeSpeed));
     });
+    didMove = true;
   }
   if(controls.backward){
     dudes.forEach(function(element) {
         element.setLinearVelocity(new THREE.Vector3(0,0,dudeSpeed));
     });
+    didMove = true;
   }
 }
 
@@ -265,5 +282,6 @@ function animate() {
 
     //dude.setLinearVelocity(dude.getWorldDirection().multiplyScalar(5))
 }
+
 init();
 animate();
