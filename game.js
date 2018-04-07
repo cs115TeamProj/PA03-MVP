@@ -11,14 +11,12 @@ var expandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSo
 
 var renderer = new THREE.WebGLRenderer();
 var floor;
-var wallBack
-var wallLeft
-var wallRight;
-var wallFront;
+var wallBack, wallLeft, wallRight, wallFront;
 var dudes = [];
 var food;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 var light2 = new THREE.SpotLight( 0x0000ff);
+var avatar;
 
 var controls = {
     left: false,
@@ -93,16 +91,30 @@ window.addEventListener("keyup", function(event){
 
 function createDude(scale, X, Y, Z){
     var dude;
-    var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
+    console.log("loading dude");
+    var loader = new THREE.JSONLoader();
+    loader.load("../models/bear.json",
+    function(geometry,materials){
+
+    //var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
     var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
-    var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+    var pmaterial = new Physijs.createMaterial(material,0.9,0.5);
+    //var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
     //find next open space in the array
-    dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
+    //dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
+    dude = new Physijs.BoxMesh( geometry, pmaterial );
+    console.log("the dude is " + dude);
     dudes.push(dude);
     dude.castShadow    = true;
     dude.receiveShadow = false;
     dude.position.set(X, Y, Z);
     scene.add( dude );
+  },
+  function(xhr){
+    console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );},
+  function(err){console.log("error in loading: "+err);}
+  )
+    console.log("the dude is " + dude);
     dude.addEventListener( 'collision',
 				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
   					if (other_object==food){
@@ -272,64 +284,7 @@ function updateDude(){
     didMove = true;
   }
 }
-function createAvatar(){
-    var loader = new THREE.JSONLoader();
-    loader.load("../models/suzanne.json",
-        function ( geometry, materials ) {
 
-          var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
-          var pmaterial = new Physijs.createMaterial(material,0.9,0.5);
-          var mesh = new Physijs.BoxMesh( geometry, pmaterial );
-          mesh.setDamping(0.1,0.1);
-          mesh.castShadow = true;
-          avatar = mesh;
-
-          avatarCam.position.set(0,4.5,4);
-          avatarCam.lookAt(0,4,10);
-          mesh.add(avatarCam);
-
-          avatar.translateY(20);
-          avatarCam.translateY(-4);
-          avatarCam.translateZ(3);
-          scene.add(avatar);
-        },
-        function(xhr){
-          console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );},
-        function(err){console.log("error in loading: "+err);}
-      )
-      var currIntensity=(intensity/2)-(gameState.health/2);
-      var c1 = 0xff0040;
-      var distance = 100;
-      var decay = 2.0;
-      light1 = new THREE.PointLight( c1, currIntensity, distance, decay );
-      scene.add( light1 );
-
-  //var mesh = new THREE.Mesh( geometry, material );
-}
-
-function initBearOBJ(){
-  var loader = new THREE.OBJLoader();
-  loader.load("../models/bear.obj",
-        function ( obj) {
-          console.log("loading obj file");
-          obj.scale.x=1;
-          obj.scale.y=1;
-          obj.scale.z=1;
-          obj.position.y = 2;
-          obj.position.x = -2;
-
-          scene.add(obj);
-          obj.castShadow = true;
-
-          //
-        },
-        function(xhr){
-          console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );},
-
-        function(err){
-          console.log("error in loading: "+err);}
-      )
-}
 function animate() {
     requestAnimationFrame( animate );
     updateDude();
