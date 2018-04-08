@@ -92,6 +92,31 @@ window.addEventListener("keyup", function(event){
 });
 
 function createDude(scale, X, Y, Z){
+    var loader = new THREE.JSONLoader();
+
+    // load a resource
+    loader.load(
+    // resource URL
+    'models/suzanne.json',
+
+    // onLoad callback
+    function ( geometry, materials ) {
+      var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
+      var object = new THREE.Mesh( geometry, material );
+      scene.add( object );
+    },
+
+    // onProgress callback
+    function ( xhr ) {
+      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+    },
+
+    // onError callback
+    function( err ) {
+      console.log( 'An error happened' );
+    }
+    );
+
     var dude;
     var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
     var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
