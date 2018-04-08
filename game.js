@@ -109,7 +109,10 @@ function createDude(scale, X, Y, Z){
                 //add more food
                 foodX = randomInt(-18, 18);
                 foodZ = randomInt(-18, 18);
+<<<<<<< HEAD
                 food.setLinearVelocity(new THREE.Vector3(0,0,0));
+=======
+>>>>>>> master
     						food.position.set(foodX, 0, foodZ);
     						food.__dirtyPosition = true;
 
@@ -236,11 +239,11 @@ function update_camera()
     camera.__dirtyPosition = true;
   }
   if(controls.camForward){
-    camera.translateZ(1);
+    camera.translateZ(-1);
     camera.__dirtyPosition = true;
   }
   if(controls.camBack){
-    camera.translateZ(-1);
+    camera.translateZ(1);
     camera.__dirtyPosition = true;
   }
   camera.lookAt(0,0,0);
