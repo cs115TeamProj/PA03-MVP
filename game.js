@@ -17,6 +17,7 @@ var wallRight;
 var wallFront;
 var dudes = [];
 var food;
+var poision;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 var light2 = new THREE.SpotLight( 0x0000ff);
 
@@ -136,7 +137,30 @@ function createDude(scale, X, Y, Z){
                     createDude(dudeSize, dudeX, dudeY, dudeZ);
                     expandSounds[randomInt(0, expandSounds.length-1)].play();
                 }
-  					}
+  					} else if(other_object==poision) {
+              //add more poision
+              var poisionX = randomInt(-19, 19);
+              var poisionY = randomInt(-19, 19);
+              poision.position.set(poisionX, 0, poisionY);
+              poision.__dirtyPosition = true;
+
+              //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
+              var dudeX = dude.position.x;
+              var dudeY = dude.position.y;
+              var dudeZ = dude.position.z;
+              var dudeSize = dude.geometry.parameters.height-1;
+              var dudeIndex;
+
+                  dudeIndex = dudes.indexOf(this);
+                  scene.remove(this);
+                  dudes.splice(dudeIndex, 1);
+                  console.dir(dudes);
+                  createDude(dudeSize, dudeX, dudeY, dudeZ);
+                  expandSounds[randomInt(0, expandSounds.length-1)].play();
+              
+
+
+            }
 				}
 		)
 }
@@ -210,10 +234,28 @@ function init(){
     var pfoodMat     = new Physijs.createMaterial( foodMaterial, .9, .5);
     food             = new Physijs.SphereMesh( foodGeometry, pfoodMat);
 
+    var posionG = new THREE.SphereGeometry( .5, 10, 10 );
+    var pMaterial = new THREE.MeshLambertMaterial({ color: 000000 });
+    var pfoodMat     = new Physijs.createMaterial( pMaterial, .9, .5);
+    poision             = new Physijs.SphereMesh( posionG, pMaterial);
+
+
+
     var foodX = randomInt(-18, 18);
     var foodZ = randomInt(-18, 18);
     food.position.set(foodX, 0, foodZ);
+
+    var pX = randomInt(-18, 18);
+    var pY = randomInt(-18, 18);
+
+
+    poision.position.set(pX, 0, pY)
+
+
+
     scene.add(food);
+    scene.add(poision);
+
     StartSound.play();
 }
 
