@@ -235,11 +235,11 @@ function update_camera()
     camera.__dirtyPosition = true;
   }
   if(controls.camForward){
-    camera.translateZ(1);
+    camera.translateZ(-1);
     camera.__dirtyPosition = true;
   }
   if(controls.camBack){
-    camera.translateZ(-1);
+    camera.translateZ(1);
     camera.__dirtyPosition = true;
   }
   camera.lookAt(0,0,0);
