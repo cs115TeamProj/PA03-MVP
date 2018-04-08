@@ -107,8 +107,8 @@ function createDude(scale, X, Y, Z){
 				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
   					if (other_object==food){
                 //add more food
-                foodX = randomInt(-19, 19);
-                foodZ = randomInt(-19, 19);
+                foodX = randomInt(-18, 18);
+                foodZ = randomInt(-18, 18);
     						food.position.set(foodX, 0, foodZ);
     						food.__dirtyPosition = true;
 
