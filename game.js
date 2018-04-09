@@ -31,6 +31,15 @@ var controls = {
     camBack: false
 };
 
+var colors=[];
+var green = 0x48f442;
+var yellow= 0xe5f441;
+var red   = 0xf44141;
+
+colors.push(green);
+colors.push(yellow);
+colors.push(red);
+
 
 
 window.addEventListener("keydown", function(event){
@@ -95,30 +104,20 @@ window.addEventListener("keyup", function(event){
 
 function createDude(scale, X, Y, Z,currentColor){
     var dude;
-    var colors=[];
-    var color1= 0x48f442;
-	var color2= 0xe5f441; 
-	var color3= 0xf44141;
-	colors.push(color1);
-	colors.push(color2);
-	colors.push(color3);
-	var currentColor;
-	var rand = colors[Math.floor(Math.random() * colors.length)];
-	console.log(rand);
-	currentColor= rand;
-	console.log(currentColor);
-    var material  = new THREE.MeshLambertMaterial({ color:rand , transparent:true});
-	var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
-    var pcubeMat     = new Physijs.createMaterial( material, .9, .5); //material gets passed in cubeMat 
+	  var currentColor = colors[randomInt(0, colors.length-1)];
+	  console.dir(currentColor);
+    var material  = new THREE.MeshLambertMaterial({ color:currentColor , transparent:true});
+	  var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
+    var pcubeMat     = new Physijs.createMaterial( material, .9, .5); //material gets passed in cubeMat
     console.log("this is after pcubeMat "+currentColor);
     //find next open space in the array
-    dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat); //cube mat gets passed into dude to create a new box each time 
+    dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat); //cube mat gets passed into dude to create a new box each time
     console.log("this is after a new dude is made "+ currentColor);
-    dudes.push(dude); //push dude into array 
+    dudes.push(dude); //push dude into array
     dude.castShadow    = true;
     dude.receiveShadow = false;
     dude.position.set(X, Y, Z);
-    scene.add( dude ); 
+    scene.add( dude );
     // every time it creates a new dude I want another color to come out of the collision
     dude.addEventListener( 'collision',
 				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
@@ -141,7 +140,7 @@ function createDude(scale, X, Y, Z,currentColor){
                     dudes.splice(dudeIndex, 1);
                     for (var a=0; a<10; a++){
                         createDude(2, dudeX, dudeY, dudeZ,currentColor);
-                        //make colors of dude x y and z to be 3 diff ones 
+                        //make colors of dude x y and z to be 3 diff ones
                     }
                     ExplodeSound.play();
                     console.dir(dudes);
