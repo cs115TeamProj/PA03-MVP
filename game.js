@@ -33,6 +33,16 @@ var controls = {
     camBack: false
 };
 
+var colors=[];
+var green = 0x48f442;
+var yellow= 0xe5f441;
+var red   = 0xf44141;
+
+colors.push(green);
+colors.push(yellow);
+colors.push(red);
+
+
 window.addEventListener("keydown", function(event){
     switch(event.key)
     {
