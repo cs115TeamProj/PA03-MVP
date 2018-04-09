@@ -136,8 +136,8 @@ function createDude(scale, X, Y, Z){
           var foodCand=isFood(other_object);
   					if (foodCand==other_object){
                 //add more food
-                foodX = randomInt(-19, 19);
-                foodZ = randomInt(-19, 19);
+                foodX = randomInt(-18, 18);
+                foodZ = randomInt(-18, 18);
     						foodCand.position.set(foodX, 0, foodZ);
     						foodCand.__dirtyPosition = true;
 
