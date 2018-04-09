@@ -1,13 +1,16 @@
 Physijs.scripts.worker = '/js/physijs_worker.js';
 Physijs.scripts.ammo = '/js/ammo.js';
+
+//sounds
+var StartSound = new Audio("Sounds/StartSound.wav");
+var ExplodeSound = new Audio("Sounds/ExplodeSound.wav");
+var expandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
+
+
 var scene = new Physijs.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.z = 30;
 camera.lookAt(0,0,0);
-
-var StartSound = new Audio("Sounds/StartSound.wav");
-var ExplodeSound = new Audio("Sounds/ExplodeSound.wav");
-var expandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
 
 var renderer = new THREE.WebGLRenderer();
 var floor;
