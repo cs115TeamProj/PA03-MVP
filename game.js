@@ -17,8 +17,6 @@ var wallRight;
 var wallFront;
 var dudes = [];
 var food;
-var allFood=[];
-var poision;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 var light2 = new THREE.SpotLight( 0x0000ff);
 
@@ -32,6 +30,8 @@ var controls = {
     camForward: false,
     camBack: false
 };
+
+
 
 window.addEventListener("keydown", function(event){
     switch(event.key)
@@ -92,52 +92,42 @@ window.addEventListener("keyup", function(event){
         }; break;
     };
 });
-function isFood(obj) {
-  for (var i=0; i<allFood.length; i++) {
-    var c_food=allFood[i];
-    if (c_food==obj) return c_food;
 
-  }
-  return null;
-
-}
-
-function addFoods() {
-    var foodGeometry = new THREE.SphereGeometry( .5, 10, 10 );
-    var foodMaterial = new THREE.MeshLambertMaterial({ color: 0xff00ff });
-    var pfoodMat     = new Physijs.createMaterial( foodMaterial, .9, .5);
-
-    for (var i = 0; i < 5; i++) {
-      var food_c             = new Physijs.SphereMesh( foodGeometry, pfoodMat);
-      var fX = randomInt(-18, 18);
-      var fY = randomInt(-18, 18);
-      food_c.position.set(fX, 0, fY);
-      allFood.push(food_c)
-      scene.add(food_c);
-    }
-}
-
-function createDude(scale, X, Y, Z){
+function createDude(scale, X, Y, Z,currentColor){
     var dude;
-    var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
-    var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
-    var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+    var colors=[];
+    var color1= 0x48f442;
+	var color2= 0xe5f441; 
+	var color3= 0xf44141;
+	colors.push(color1);
+	colors.push(color2);
+	colors.push(color3);
+	var currentColor;
+	var rand = colors[Math.floor(Math.random() * colors.length)];
+	console.log(rand);
+	currentColor= rand;
+	console.log(currentColor);
+    var material  = new THREE.MeshLambertMaterial({ color:rand , transparent:true});
+	var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
+    var pcubeMat     = new Physijs.createMaterial( material, .9, .5); //material gets passed in cubeMat 
+    console.log("this is after pcubeMat "+currentColor);
     //find next open space in the array
-    dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
-    dudes.push(dude);
+    dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat); //cube mat gets passed into dude to create a new box each time 
+    console.log("this is after a new dude is made "+ currentColor);
+    dudes.push(dude); //push dude into array 
     dude.castShadow    = true;
     dude.receiveShadow = false;
     dude.position.set(X, Y, Z);
-    scene.add( dude );
+    scene.add( dude ); 
+    // every time it creates a new dude I want another color to come out of the collision
     dude.addEventListener( 'collision',
 				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-          var foodCand=isFood(other_object);
-  					if (foodCand==other_object){
+  					if (other_object==food){
                 //add more food
                 foodX = randomInt(-19, 19);
                 foodZ = randomInt(-19, 19);
-    						foodCand.position.set(foodX, 0, foodZ);
-    						foodCand.__dirtyPosition = true;
+    						food.position.set(foodX, 0, foodZ);
+    						food.__dirtyPosition = true;
 
                 //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
                 var dudeX = dude.position.x;
@@ -150,7 +140,8 @@ function createDude(scale, X, Y, Z){
                     scene.remove(this);
                     dudes.splice(dudeIndex, 1);
                     for (var a=0; a<10; a++){
-                        createDude(2, dudeX, dudeY, dudeZ);
+                        createDude(2, dudeX, dudeY, dudeZ,currentColor);
+                        //make colors of dude x y and z to be 3 diff ones 
                     }
                     ExplodeSound.play();
                     console.dir(dudes);
@@ -163,33 +154,11 @@ function createDude(scale, X, Y, Z){
                     createDude(dudeSize, dudeX, dudeY, dudeZ);
                     expandSounds[randomInt(0, expandSounds.length-1)].play();
                 }
-  					} else if(other_object==poision) {
-              //add more poision
-              var poisionX = randomInt(-19, 19);
-              var poisionY = randomInt(-19, 19);
-              poision.position.set(poisionX, 0, poisionY);
-              poision.__dirtyPosition = true;
-
-              //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
-              var dudeX = dude.position.x;
-              var dudeY = dude.position.y;
-              var dudeZ = dude.position.z;
-              var dudeSize = dude.geometry.parameters.height-1;
-              var dudeIndex;
-
-                  dudeIndex = dudes.indexOf(this);
-                  scene.remove(this);
-                  dudes.splice(dudeIndex, 1);
-                  console.dir(dudes);
-                  createDude(dudeSize, dudeX, dudeY, dudeZ);
-                  expandSounds[randomInt(0, expandSounds.length-1)].play();
-
-
-
-            }
+  					}
 				}
 		)
 }
+
 
 function init(){
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -248,34 +217,22 @@ function init(){
     scene.add( wallFront );
 
     createDude(2, 0, 0, 4);
+
     light1.position.set( 0, 10, 0 );
     scene.add( light1 );
     light2.castShadow = true;
     light2.position.set( 0, 10, 0 );
     scene.add( light2 );
 
-    // var foodGeometry = new THREE.SphereGeometry( .5, 10, 10 );
-    // var foodMaterial = new THREE.MeshLambertMaterial({ color: 0xff00ff });
-    // var pfoodMat     = new Physijs.createMaterial( foodMaterial, .9, .5);
-    // food             = new Physijs.SphereMesh( foodGeometry, pfoodMat);
-    // var foodX = randomInt(-18, 18);
-    // var foodZ = randomInt(-18, 18);
-    // food.position.set(foodX, 0, foodZ);
+    var foodGeometry = new THREE.SphereGeometry( .5, 10, 10 );
+    var foodMaterial = new THREE.MeshLambertMaterial({ color: 0xff00ff });
+    var pfoodMat     = new Physijs.createMaterial( foodMaterial, .9, .5);
+    food             = new Physijs.SphereMesh( foodGeometry, pfoodMat);
 
-
-    var posionG = new THREE.SphereGeometry( .5, 10, 10 );
-    var pMaterial = new THREE.MeshLambertMaterial({ color: 000000 });
-    var poisionMat     = new Physijs.createMaterial( pMaterial, .9, .5);
-    poision             = new Physijs.SphereMesh( posionG, poisionMat);
-    var pX = randomInt(-18, 18);
-    var pY = randomInt(-18, 18);
-    poision.position.set(pX, 0, pY)
-
-    // scene.add(food);
-    scene.add(poision);
-    addFoods();
-
-
+    var foodX = randomInt(-18, 18);
+    var foodZ = randomInt(-18, 18);
+    food.position.set(foodX, 0, foodZ);
+    scene.add(food);
     StartSound.play();
 }
 
@@ -297,11 +254,11 @@ function update_camera()
     camera.__dirtyPosition = true;
   }
   if(controls.camForward){
-    camera.translateZ(-1);
+    camera.translateZ(1);
     camera.__dirtyPosition = true;
   }
   if(controls.camBack){
-    camera.translateZ(1);
+    camera.translateZ(-1);
     camera.__dirtyPosition = true;
   }
   camera.lookAt(0,0,0);
