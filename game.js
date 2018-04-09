@@ -92,7 +92,9 @@ window.addEventListener("keyup", function(event){
         }; break;
     };
 });
+
 function isFood(obj) {
+
   for (var i=0; i<allFood.length; i++) {
     var c_food=allFood[i];
     if (c_food==obj) return c_food;
@@ -165,8 +167,8 @@ function createDude(scale, X, Y, Z){
                 }
   					} else if(other_object==poision) {
               //add more poision
-              var poisionX = randomInt(-19, 19);
-              var poisionY = randomInt(-19, 19);
+              var poisionX = randomInt(-18, 18);
+              var poisionY = randomInt(-18, 18);
               poision.position.set(poisionX, 0, poisionY);
               poision.__dirtyPosition = true;
 
