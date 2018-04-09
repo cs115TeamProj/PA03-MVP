@@ -37,10 +37,12 @@ var colors=[];
 var green = 0x48f442;
 var yellow= 0xe5f441;
 var red   = 0xf44141;
+var blue  = 0x0099ff;
 
 colors.push(green);
 colors.push(yellow);
 colors.push(red);
+colors.push(blue);
 
 
 window.addEventListener("keydown", function(event){
@@ -131,8 +133,10 @@ function addFoods() {
 
 function createDude(scale, X, Y, Z){
     var dude;
+    var currentColor = colors[randomInt(0, colors.length-1)];
+	  console.dir(currentColor);
+    var material  = new THREE.MeshLambertMaterial({ color:currentColor ,opacity: 0.95,transparent:true});
     var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
-    var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
     var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
     //find next open space in the array
     dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
