@@ -92,78 +92,84 @@ window.addEventListener("keyup", function(event){
 });
 
 function createDude(scale, X, Y, Z){
+    var dude;
     var loader = new THREE.JSONLoader();
-
     // load a resource
     loader.load(
     // resource URL
     'models/suzanne.json',
-
     // onLoad callback
     function ( geometry, materials ) {
-      var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
-      var object = new THREE.Mesh( geometry, material );
-      scene.add( object );
+        var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
+        // var object = new THREE.Mesh( geometry, material );
+        var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+        var dudeGeom = geometry;
+        dudeGeom.scale(scale, scale, scale);
+        dude = new Physijs.BoxMesh( dudeGeom, pcubeMat);
+        // dude.scale.set(size, size, size);
+        dudes.push(dude);
+        dude.castShadow    = true;
+        dude.receiveShadow = false;
+        dude.position.set(X, Y, Z);
+        scene.add( dude );
+        dude.addEventListener( 'collision',
+    				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+      					if (other_object==food){
+                    //add more food
+                    foodX = randomInt(-18, 18);
+                    foodZ = randomInt(-18, 18);
+        						food.position.set(foodX, 0, foodZ);
+        						food.__dirtyPosition = true;
+
+                    //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
+                    var dudeX = dude.position.x;
+                    var dudeY = dude.position.y;
+                    var dudeZ = dude.position.z;
+                    scale += 1;
+                    var dudeIndex;
+                    if (scale >=5){
+                        dudeIndex = dudes.indexOf(this);
+                        scene.remove(this);
+                        dudes.splice(dudeIndex, 1);
+                        for (var a=0; a<10; a++){
+                            createDude(1, dudeX, dudeY, dudeZ);
+                        }
+                        scale = 1;
+                        ExplodeSound.play();
+                        console.dir(dudes);
+                    } else {
+                        console.log(dudes.indexOf(this));
+                        dudeIndex = dudes.indexOf(this);
+                        scene.remove(this);
+                        dudes.splice(dudeIndex, 1);
+                        console.dir(dudes);
+                        createDude(scale, dudeX, dudeY, dudeZ);
+                        expandSounds[randomInt(0, expandSounds.length-1)].play();
+                    }
+      					}
+    				}
+    		)
+        scene.add( dude );
     },
 
     // onProgress callback
     function ( xhr ) {
-      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+        console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
     },
 
     // onError callback
     function( err ) {
-      console.log( 'An error happened' );
+        console.log( 'An error happened' );
     }
     );
 
-    var dude;
-    var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
-    var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
-    var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
-    //find next open space in the array
-    dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
-    dudes.push(dude);
-    dude.castShadow    = true;
-    dude.receiveShadow = false;
-    dude.position.set(X, Y, Z);
-    scene.add( dude );
-    dude.addEventListener( 'collision',
-				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-  					if (other_object==food){
-                //add more food
-                foodX = randomInt(-19, 19);
-                foodZ = randomInt(-19, 19);
-    						food.position.set(foodX, 0, foodZ);
-    						food.__dirtyPosition = true;
 
-                //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
-                var dudeX = dude.position.x;
-                var dudeY = dude.position.y;
-                var dudeZ = dude.position.z;
-                var dudeSize = dude.geometry.parameters.height+1;
-                var dudeIndex;
-                if (dudeSize >=5){
-                    dudeIndex = dudes.indexOf(this);
-                    scene.remove(this);
-                    dudes.splice(dudeIndex, 1);
-                    for (var a=0; a<10; a++){
-                        createDude(2, dudeX, dudeY, dudeZ);
-                    }
-                    ExplodeSound.play();
-                    console.dir(dudes);
-                } else {
-                    console.log(dudes.indexOf(this));
-                    dudeIndex = dudes.indexOf(this);
-                    scene.remove(this);
-                    dudes.splice(dudeIndex, 1);
-                    console.dir(dudes);
-                    createDude(dudeSize, dudeX, dudeY, dudeZ);
-                    expandSounds[randomInt(0, expandSounds.length-1)].play();
-                }
-  					}
-				}
-		)
+    // var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
+    // var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
+    // var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+    // //find next open space in the array
+    // dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
+
 }
 
 function init(){
