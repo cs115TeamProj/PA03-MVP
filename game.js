@@ -117,78 +117,98 @@ function addFoods() {
     }
 }
 
-function createDude(scale, X, Y, Z){
-    var dude;
-    var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
-    var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
-    var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
-    //find next open space in the array
-    dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
-    dudes.push(dude);
-    dude.castShadow    = true;
-    dude.receiveShadow = false;
-    dude.position.set(X, Y, Z);
-    scene.add( dude );
-    dude.addEventListener( 'collision',
-				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-          var foodCand=isFood(other_object);
-  					if (foodCand==other_object){
-                //add more food
-                foodX = randomInt(-19, 19);
-                foodZ = randomInt(-19, 19);
-    						foodCand.position.set(foodX, 0, foodZ);
-    						foodCand.__dirtyPosition = true;
+var dudeGeometry=null
+var dudeMaterial= null
 
-                //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
-                var dudeX = dude.position.x;
-                var dudeY = dude.position.y;
-                var dudeZ = dude.position.z;
-                var dudeSize = dude.geometry.parameters.height+1;
-                var dudeIndex;
-                if (dudeSize >=5){
-                    dudeIndex = dudes.indexOf(this);
-                    scene.remove(this);
-                    dudes.splice(dudeIndex, 1);
-                    for (var a=0; a<10; a++){
-                        createDude(2, dudeX, dudeY, dudeZ);
-                    }
-                    ExplodeSound.play();
-                    console.dir(dudes);
-                } else {
-                    console.log(dudes.indexOf(this));
-                    dudeIndex = dudes.indexOf(this);
-                    scene.remove(this);
-                    dudes.splice(dudeIndex, 1);
-                    console.dir(dudes);
-                    createDude(dudeSize, dudeX, dudeY, dudeZ);
-                    expandSounds[randomInt(0, expandSounds.length-1)].play();
-                }
-  					} else if(other_object==poision) {
-              //add more poision
-              var poisionX = randomInt(-19, 19);
-              var poisionY = randomInt(-19, 19);
-              poision.position.set(poisionX, 0, poisionY);
-              poision.__dirtyPosition = true;
+function addDude(scale, X, Y, Z){
+  var dude  = new Physijs.BoxMesh( dudeGeometry, dudeMaterial);
+  dudes.push(dude);
+  dude.castShadow    = true;
+  dude.receiveShadow = false;
+  dude.position.set(X, Y, Z);
+  //var dude = createDude(scale, X, Y, Z);
+  scene.add( dude );
+  console.log("the dude is " + dude);
+  dude.addEventListener( 'collision',
+      function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+        var foodCand=isFood(other_object);
+          if (foodCand==other_object){
+              //add more food
+              foodX = randomInt(-19, 19);
+              foodZ = randomInt(-19, 19);
+              foodCand.position.set(foodX, 0, foodZ);
+              foodCand.__dirtyPosition = true;
 
               //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
               var dudeX = dude.position.x;
               var dudeY = dude.position.y;
               var dudeZ = dude.position.z;
-              var dudeSize = dude.geometry.parameters.height-1;
+              var dudeSize = dude.geometry.parameters.height+1;
               var dudeIndex;
-
+              if (dudeSize >=5){
+                  dudeIndex = dudes.indexOf(this);
+                  scene.remove(this);
+                  dudes.splice(dudeIndex, 1);
+                  for (var a=0; a<10; a++){
+                      addDude(2, dudeX, dudeY, dudeZ);
+                  }
+                  ExplodeSound.play();
+                  console.dir(dudes);
+              } else {
+                  console.log(dudes.indexOf(this));
                   dudeIndex = dudes.indexOf(this);
                   scene.remove(this);
                   dudes.splice(dudeIndex, 1);
                   console.dir(dudes);
-                  createDude(dudeSize, dudeX, dudeY, dudeZ);
+                  addDude(dudeSize, dudeX, dudeY, dudeZ);
                   expandSounds[randomInt(0, expandSounds.length-1)].play();
+              }
+          } else if(other_object==poision) {
+            //add more poision
+            var poisionX = randomInt(-19, 19);
+            var poisionY = randomInt(-19, 19);
+            poision.position.set(poisionX, 0, poisionY);
+            poision.__dirtyPosition = true;
+
+            //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
+            var dudeX = dude.position.x;
+            var dudeY = dude.position.y;
+            var dudeZ = dude.position.z;
+            var dudeSize = dude.geometry.parameters.height-1;
+            var dudeIndex;
+
+                dudeIndex = dudes.indexOf(this);
+                scene.remove(this);
+                dudes.splice(dudeIndex, 1);
+                console.dir(dudes);
+                addDude(scale, X, Y, Z);
+                expandSounds[randomInt(0, expandSounds.length-1)].play();
+          }
+      }
+  )
+
+}
+
+function createDude(scale, X, Y, Z){
+
+    var loader = new THREE.JSONLoader();
+    loader.load("../models/suzanne.json",
+        function ( geometry, materials ) {
+          console.log('loading dude')
+          dudeGeometry = geometry;
 
 
-
-            }
-				}
-		)
+    //var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
+    var material     = new THREE.MeshLambertMaterial({ color: 0x0099ff });
+    var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+    dudeMaterial = pcubeMat
+    addDude(scale,X,Y,Z);
+    //find next open space in the array
+  },
+  function(xhr){
+    console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );},
+  function(err){console.log("error in loading: "+err);}
+  )
 }
 
 function init(){
