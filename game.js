@@ -119,20 +119,59 @@ function isFood(obj) {
 
 }
 
-function addFoods() {
-    var foodGeometry = new THREE.SphereGeometry( .5, 10, 10 );
-    var foodMaterial = new THREE.MeshLambertMaterial({ color: 0xff00ff });
-    var pfoodMat     = new Physijs.createMaterial( foodMaterial, .9, .5);
-
-    for (var i = 0; i < 5; i++) {
-      var food_c             = new Physijs.SphereMesh( foodGeometry, pfoodMat);
+function addFoods(scale, X, Y, Z) {
+  var food_c;
+  var loader = new THREE.JSONLoader();
+  // load a resource
+  for (var i = 0; i < 5; i++) {
+  loader.load(
+  // resource URL
+  'models/banana.json',
+  // onLoad callback
+  function ( geometry, materials ) {
+      var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
+      // var object = new THREE.Mesh( geometry, material );
+      var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+      var bananaGeom = geometry;
+      bananaGeom.scale(scale, scale, scale);
+      food_c = new Physijs.BoxMesh( bananaGeom, pcubeMat);
+  //bananaGeom.matrix.scale( scale );
+      // dude.scale.set(size, size, size);
+    //  foods.push(banana);
+      food_c.castShadow    = true;
+      food_c.receiveShadow = false;
+      //banana.position.set(X, Y, Z);
       var fX = randomInt(-18, 18);
       var fY = randomInt(-18, 18);
       food_c.position.set(fX, 0, fY);
       allFood.push(food_c)
       scene.add(food_c);
-    }
+  },
+
+  // onProgress callback
+  function ( xhr ) {
+      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+  },
+
+  // onError callback
+  function( err ) {
+      console.log( 'An error happened' );
+  }
+  );
 }
+}
+    // var foodGeometry = new THREE.SphereGeometry( .5, 10, 10 );
+    // var foodMaterial = new THREE.MeshLambertMaterial({ color: 0xff00ff });
+    // var pfoodMat     = new Physijs.createMaterial( foodMaterial, .9, .5);
+    //
+    // for (var i = 0; i < 5; i++) {
+    //   var food_c             = new Physijs.SphereMesh( foodGeometry, pfoodMat);
+    //   var fX = randomInt(-18, 18);
+    //   var fY = randomInt(-18, 18);
+    //   food_c.position.set(fX, 0, fY);
+    //   allFood.push(food_c)
+    //   scene.add(food_c);
+//}
 
 function createDude(scale, X, Y, Z){
     var dude;
@@ -273,15 +312,6 @@ function init(){
     light2.position.set( 0, 10, 0 );
     scene.add( light2 );
 
-    // var foodGeometry = new THREE.SphereGeometry( .5, 10, 10 );
-    // var foodMaterial = new THREE.MeshLambertMaterial({ color: 0xff00ff });
-    // var pfoodMat     = new Physijs.createMaterial( foodMaterial, .9, .5);
-    // food             = new Physijs.SphereMesh( foodGeometry, pfoodMat);
-    // var foodX = randomInt(-18, 18);
-    // var foodZ = randomInt(-18, 18);
-    // food.position.set(foodX, 0, foodZ);
-
-
     var posionG = new THREE.SphereGeometry( .5, 10, 10 );
     var pMaterial = new THREE.MeshLambertMaterial({ color: 000000 });
     var poisionMat     = new Physijs.createMaterial( pMaterial, .9, .5);
@@ -292,7 +322,7 @@ function init(){
 
     // scene.add(food);
     scene.add(poision);
-    addFoods();
+    addFoods(.5, 0, 0, 2);
 
 
     StartSound.play();
