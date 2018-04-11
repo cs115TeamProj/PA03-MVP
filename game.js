@@ -12,14 +12,12 @@ var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHe
 camera.position.z = 30;
 camera.lookAt(0,0,0);
 
-var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 var floor;
-var wallBack
-var wallLeft
-var wallRight;
-var wallFront;
+var wallBack, wallLeft, wallRight, wallFront;
 var dudes = [];
 var food;
+var energy = 100;
 var allFood=[];
 var poision;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
@@ -160,33 +158,30 @@ function addFoods(scale, X, Y, Z) {
   );
 }
 }
-    // var foodGeometry = new THREE.SphereGeometry( .5, 10, 10 );
-    // var foodMaterial = new THREE.MeshLambertMaterial({ color: 0xff00ff });
-    // var pfoodMat     = new Physijs.createMaterial( foodMaterial, .9, .5);
-    //
-    // for (var i = 0; i < 5; i++) {
-    //   var food_c             = new Physijs.SphereMesh( foodGeometry, pfoodMat);
-    //   var fX = randomInt(-18, 18);
-    //   var fY = randomInt(-18, 18);
-    //   food_c.position.set(fX, 0, fY);
-    //   allFood.push(food_c)
-    //   scene.add(food_c);
-//}
 
 function createDude(scale, X, Y, Z){
     var dude;
     var currentColor = colors[randomInt(0, colors.length-1)];
 	  console.dir(currentColor);
-    var material  = new THREE.MeshLambertMaterial({ color:currentColor ,opacity: 0.95,transparent:true});
-    var cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
-    var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
-    //find next open space in the array
-    dude  = new Physijs.BoxMesh( cubeGeometry, pcubeMat);
-    dudes.push(dude);
-    dude.castShadow    = true;
-    dude.receiveShadow = false;
-    dude.position.set(X, Y, Z);
+    cubeMaterial  = new THREE.MeshLambertMaterial({ color:currentColor ,opacity: 0.95,transparent:true});
+    cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
+    var pcubeMat     = new Physijs.createMaterial( cubeMaterial, .9, .5);
+    dudeMaterial = pcubeMat
+    addDude(scale,X,Y,Z);
+}
+
+var cubeMaterial=null
+var cubeGeometry= null
+
+function addDude(scale, X, Y, Z){
+      var dude  = new Physijs.BoxMesh( cubeGeometry, cubeMaterial);
+      dudes.push(dude);
+      dude.castShadow    = true;
+      dude.receiveShadow = false;
+      dude.position.set(X, Y, Z);
     scene.add( dude );
+    console.log("the dude is " + dude);
+
     dude.addEventListener( 'collision',
 				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
           var foodCand=isFood(other_object);
@@ -241,19 +236,38 @@ function createDude(scale, X, Y, Z){
                   console.dir(dudes);
                   createDude(dudeSize, dudeX, dudeY, dudeZ);
                   expandSounds[randomInt(0, expandSounds.length-1)].play();
-
-
-
             }
 				}
 		)
+}
+
+function reduceEnergy(){
+  energy -= 5;
+  console.log('reducing energy');
+  console.log("the energybar is " + energyBar);
+  //this ensures that is greater than 0
+  energy = Math.max(energy);
+  energyBar.style.right = (100-energy)+"%";
+  energyBar.style.backgroundColor = (energy<50)? "#f25346" : "#68c3c0";
+
+  if (energy <1){
+      console.log("game over");
+  }
 }
 
 function init(){
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    document.body.appendChild( renderer.domElement ); //puts the canvas onto the page
+    var container = document.createElement( 'div' );
+    container.style.position = 'relative';
+    document.body.appendChild( container );
+    //container.appendChild( renderer.domElement ); //puts the canvas onto the page
+
+    var foreground = document.getElementById('world');
+    container.appendChild( renderer.domElement ); //puts the canvas onto the page
+
+    window.addEventListener('resize', handleWindowResize, false);
 
     var floorGeometry = new THREE.PlaneGeometry( 40, 40, 128 );
     var floorMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff } );
@@ -326,7 +340,20 @@ function init(){
 
 
     StartSound.play();
-}
+
+
+        energybar = document.getElementById("energy-bar");
+        console.log('getting the energy');
+    }
+
+    function handleWindowResize() {
+    	// update height and width of the renderer and the camera
+    	HEIGHT = window.innerHeight;
+    	WIDTH = window.innerWidth;
+    	renderer.setSize(WIDTH, HEIGHT);
+    	camera.aspect = WIDTH / HEIGHT;
+    	camera.updateProjectionMatrix();
+    }
 
 function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
