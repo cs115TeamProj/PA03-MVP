@@ -201,17 +201,18 @@ function createDude(scale, X, Y, Z){
                         scene.remove(this);
                         dudes.splice(dudeIndex, 1);
                         for (var a=0; a<10; a++){
-                            createDude(2, dudeX, dudeY, dudeZ);
+                            createDude(1, dudeX, dudeY, dudeZ);
                         }
+                        scale = 1;
                         ExplodeSound.play();
 
                     } else {
-                        
+
                         dudeIndex = dudes.indexOf(this);
                         scene.remove(this);
                         dudes.splice(dudeIndex, 1);
 
-                        createDude(dudeSize, dudeX, dudeY, dudeZ);
+                        createDude(scale, dudeX, dudeY, dudeZ);
                         expandSounds[randomInt(0, expandSounds.length-1)].play();
                     }
       					} else if(other_object==poision) {
