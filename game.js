@@ -106,7 +106,7 @@ window.addEventListener("keyup", function(event){
     };
 });
 
-function isPoison(obj) {
+function touchedPoison(obj) {
 
   for (var i=0; i<allPoison.length; i++) {
     var poison=allPoison[i];
@@ -219,8 +219,8 @@ function createDude(scale, X, Y, Z){
         scene.add( dude );
         dude.addEventListener( 'collision',
     				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-              var foodCand=isFood(other_object);
-      					if (foodCand==other_object){
+              var touched_poison=touchedPoison(other_object);
+      					if (food==other_object){
                     //add more food
                     foodX = randomInt(-18, 18);
                     foodZ = randomInt(-18, 18);
@@ -244,7 +244,6 @@ function createDude(scale, X, Y, Z){
                         ExplodeSound.play();
 
                     } else {
-
                         dudeIndex = dudes.indexOf(this);
                         scene.remove(this);
                         dudes.splice(dudeIndex, 1);
@@ -252,12 +251,12 @@ function createDude(scale, X, Y, Z){
                         createDude(scale, dudeX, dudeY, dudeZ);
                         expandSounds[randomInt(0, expandSounds.length-1)].play();
                     }
-      					} else if(other_object==poision) {
+      					} else if(other_object==touched_poison) {
                   //add more poision
-                  var poisionX = randomInt(-18, 18);
-                  var poisionY = randomInt(-18, 18);
-                  poision.position.set(poisionX, 0, poisionY);
-                  poision.__dirtyPosition = true;
+                  var poisonX = randomInt(-18, 18);
+                  var poisonY = randomInt(-18, 18);
+                  poison.position.set(poisonX, 0, poisonY);
+                  poison.__dirtyPosition = true;
 
                   //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
                   var dudeX = dude.position.x;
