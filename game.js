@@ -161,6 +161,7 @@ function addFoods(scale, X, Y, Z) {
 
 function createDude(scale, X, Y, Z){
     var dude;
+    var currentColor = colors[randomInt(0, colors.length-1)];
     var loader = new THREE.JSONLoader();
     // load a resource
     loader.load(
@@ -168,7 +169,7 @@ function createDude(scale, X, Y, Z){
     'models/suzanne.json',
     // onLoad callback
     function ( geometry, materials ) {
-        var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
+        var material = new THREE.MeshLambertMaterial( { color:currentColor ,opacity: 0.95,transparent:true});
         // var object = new THREE.Mesh( geometry, material );
         var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
         var dudeGeom = geometry;
@@ -226,14 +227,14 @@ function createDude(scale, X, Y, Z){
                   var dudeX = dude.position.x;
                   var dudeY = dude.position.y;
                   var dudeZ = dude.position.z;
-                  var dudeSize = dude.geometry.parameters.height-1;
+                  scale -= 1 ;
                   var dudeIndex;
 
                       dudeIndex = dudes.indexOf(this);
                       scene.remove(this);
                       dudes.splice(dudeIndex, 1);
                       console.dir(dudes);
-                      createDude(dudeSize, dudeX, dudeY, dudeZ);
+                      createDude(scale, dudeX, dudeY, dudeZ);
                       expandSounds[randomInt(0, expandSounds.length-1)].play();
                 }
     				}
