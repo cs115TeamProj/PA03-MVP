@@ -18,6 +18,7 @@ var wallBack, wallLeft, wallRight, wallFront;
 var dudes = [];
 var food;
 var energy = 10;
+var lifeBar;
 var allPoison=[];
 var poison;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
@@ -193,7 +194,7 @@ function addFoods() {
   );
 }
 
-function createDude(scale, X, Y, Z){
+function createDude(scale, X, Y, Z) {
     var dude;
     var currentColor = colors[randomInt(0, colors.length-1)];
     var loader = new THREE.JSONLoader();
@@ -283,15 +284,23 @@ function createDude(scale, X, Y, Z){
 
 }
 
-function reduceEnergy(){
-  energy -= 5;
-  console.log('reducing energy');
-  // console.log("the energybar is " + energyBar);
-  //this ensures that is greater than 0
-  // energy = Math.max(energy);
-  // energyBar.style.right = (100-energy)+"%";
-  // energyBar.style.backgroundColor = (energy<50)? "#f25346" : "#68c3c0";
+function createEnergyBar(position) {
+    var lifeBarGeom   = new THREE.PlaneGeometry( energy, 1, 128 );
+    var lifeBarMat    = new THREE.MeshLambertMaterial({color: 0xff0000});
+    lifeBar           = new THREE.Mesh(lifeBarGeom, lifeBarMat);
+    lifeBar.position.set(position, 18, -5);
+    scene.add(lifeBar);
+}
 
+function reduceEnergy(){
+  energy -= 1;
+  var position = (energy-10)/2;
+  scene.remove(lifeBar);
+  createEnergyBar(position, lifeBar);
+  // var differenceInSize = lifeBar.scale.x - lifeBar.scale.x*.8;
+  // lifeBar.scale.x = lifeBar.scale.x*.8;
+  // lifeBar.position.x -= (differenceInSize);
+  console.log('reducing energy');
   if (energy <1){
       console.log("game over");
   }
@@ -317,6 +326,8 @@ function init(){
     container.appendChild( renderer.domElement ); //puts the canvas onto the page
 
     window.addEventListener('resize', handleWindowResize, false);
+
+    createEnergyBar(0);
 
     var floorGeometry = new THREE.PlaneGeometry( 40, 40, 128 );
     var floorMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff } );
