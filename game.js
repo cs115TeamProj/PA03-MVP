@@ -194,9 +194,9 @@ function createDude(scale, X, Y, Z){
                     var dudeX = dude.position.x;
                     var dudeY = dude.position.y;
                     var dudeZ = dude.position.z;
-                    var dudeSize = dude.geometry.parameters.height+1;
+                    scale += 1;
                     var dudeIndex;
-                    if (dudeSize >=5){
+                    if (scale >=5){
                         dudeIndex = dudes.indexOf(this);
                         scene.remove(this);
                         dudes.splice(dudeIndex, 1);
@@ -206,7 +206,7 @@ function createDude(scale, X, Y, Z){
                         ExplodeSound.play();
 
                     } else {
-
+                        
                         dudeIndex = dudes.indexOf(this);
                         scene.remove(this);
                         dudes.splice(dudeIndex, 1);
