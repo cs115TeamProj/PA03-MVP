@@ -109,10 +109,7 @@ function createDude(scale, X, Y, Z){
                 //add more food
                 foodX = randomInt(-18, 18);
                 foodZ = randomInt(-18, 18);
-<<<<<<< HEAD
                 food.setLinearVelocity(new THREE.Vector3(0,0,0));
-=======
->>>>>>> master
     						food.position.set(foodX, 0, foodZ);
     						food.__dirtyPosition = true;
 
