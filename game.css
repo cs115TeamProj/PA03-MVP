@@ -63,7 +63,7 @@
 	border-radius: 3px;
 	background-color: #d1b790;
 }
-#energy-bar {
+.energy-bar {
 	position: absolute;
 	top: 0;
 	right: 0;

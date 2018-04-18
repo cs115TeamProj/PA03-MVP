@@ -18,8 +18,8 @@ var wallBack, wallLeft, wallRight, wallFront;
 var dudes = [];
 var food;
 var energy = 100;
-var allFood=[];
-var poision;
+var allPoison=[];
+var poison;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 var light2 = new THREE.SpotLight( 0x0000ff);
 
@@ -106,44 +106,42 @@ window.addEventListener("keyup", function(event){
     };
 });
 
-function isFood(obj) {
+function isPoison(obj) {
 
-  for (var i=0; i<allFood.length; i++) {
-    var c_food=allFood[i];
-    if (c_food==obj) return c_food;
+  for (var i=0; i<allPoison.length; i++) {
+    var poison=allPoison[i];
+    if (poison==obj) return poison;
 
   }
   return null;
 
 }
 
-function addFoods(scale, X, Y, Z) {
-  var food_c;
+function addPoison() {
+  var poison;
   var loader = new THREE.JSONLoader();
   // load a resource
-  for (var i = 0; i < 5; i++) {
+  for(var i = 0; i < 5; i++){
   loader.load(
   // resource URL
   'models/banana.json',
   // onLoad callback
   function ( geometry, materials ) {
-      var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
+      var material = new THREE.MeshLambertMaterial( { color: 0x000000} );
       // var object = new THREE.Mesh( geometry, material );
-      var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
-      var bananaGeom = geometry;
-      bananaGeom.scale(scale, scale, scale);
-      food_c = new Physijs.BoxMesh( bananaGeom, pcubeMat);
-  //bananaGeom.matrix.scale( scale );
-      // dude.scale.set(size, size, size);
-    //  foods.push(banana);
-      food_c.castShadow    = true;
-      food_c.receiveShadow = false;
+      var poisonMat     = new Physijs.createMaterial( material, .4, .2);
+      var poisonGeom = geometry;
+      poisonGeom.scale(.5, .5, .5);
+      poison = new Physijs.BoxMesh( poisonGeom, poisonMat);
+
+      poison.castShadow    = true;
+      poison.receiveShadow = false;
       //banana.position.set(X, Y, Z);
       var fX = randomInt(-18, 18);
       var fY = randomInt(-18, 18);
-      food_c.position.set(fX, 0, fY);
-      allFood.push(food_c)
-      scene.add(food_c);
+      poison.position.set(fX, 0, fY);
+      allPoison.push(poison)
+      scene.add(poison);
   },
 
   // onProgress callback
@@ -157,6 +155,44 @@ function addFoods(scale, X, Y, Z) {
   }
   );
 }
+}
+
+function addFoods() {
+  var food_c;
+  var loader = new THREE.JSONLoader();
+  // load a resource
+  loader.load(
+  // resource URL
+  'models/banana.json',
+  // onLoad callback
+  function ( geometry, materials ) {
+      var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
+      // var object = new THREE.Mesh( geometry, material );
+      var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+      var bananaGeom = geometry;
+      food_c = new Physijs.BoxMesh( bananaGeom, pcubeMat);
+  //bananaGeom.matrix.scale( scale );
+      // dude.scale.set(size, size, size);
+    //  foods.push(banana);
+      food_c.castShadow    = true;
+      food_c.receiveShadow = false;
+      //banana.position.set(X, Y, Z);
+      var fX = randomInt(-18, 18);
+      var fY = randomInt(-18, 18);
+      food_c.position.set(fX, 0, fY);
+      scene.add(food_c);
+  },
+
+  // onProgress callback
+  function ( xhr ) {
+      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+  },
+
+  // onError callback
+  function( err ) {
+      console.log( 'An error happened' );
+  }
+  );
 }
 
 function createDude(scale, X, Y, Z){
@@ -180,11 +216,9 @@ function addDude(scale, X, Y, Z){
       dude.receiveShadow = false;
       dude.position.set(X, Y, Z);
     scene.add( dude );
-    console.log("the dude is " + dude);
-
     dude.addEventListener( 'collision',
 				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-          var foodCand=isFood(other_object);
+          var foodCand=isPoison(other_object);
   					if (foodCand==other_object){
                 //add more food
                 foodX = randomInt(-18, 18);
@@ -208,7 +242,7 @@ function addDude(scale, X, Y, Z){
                     ExplodeSound.play();
                     console.dir(dudes);
                 } else {
-                    console.log(dudes.indexOf(this));
+                    //console.log(dudes.indexOf(this));
                     dudeIndex = dudes.indexOf(this);
                     scene.remove(this);
                     dudes.splice(dudeIndex, 1);
@@ -216,12 +250,12 @@ function addDude(scale, X, Y, Z){
                     createDude(dudeSize, dudeX, dudeY, dudeZ);
                     expandSounds[randomInt(0, expandSounds.length-1)].play();
                 }
-  					} else if(other_object==poision) {
-              //add more poision
-              var poisionX = randomInt(-18, 18);
-              var poisionY = randomInt(-18, 18);
-              poision.position.set(poisionX, 0, poisionY);
-              poision.__dirtyPosition = true;
+  					} else if(other_object==poison) {
+              //add more poison
+              var poisonX = randomInt(-18, 18);
+              var poisonY = randomInt(-18, 18);
+              poison.position.set(poisonX, 0, poisonY);
+              poison.__dirtyPosition = true;
 
               //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
               var dudeX = dude.position.x;
@@ -328,22 +362,21 @@ function init(){
 
     var posionG = new THREE.SphereGeometry( .5, 10, 10 );
     var pMaterial = new THREE.MeshLambertMaterial({ color: 000000 });
-    var poisionMat     = new Physijs.createMaterial( pMaterial, .9, .5);
-    poision             = new Physijs.SphereMesh( posionG, poisionMat);
+    var poisonMat     = new Physijs.createMaterial( pMaterial, .9, .5);
+    poison             = new Physijs.SphereMesh( posionG, poisonMat);
     var pX = randomInt(-18, 18);
     var pY = randomInt(-18, 18);
-    poision.position.set(pX, 0, pY)
+    poison.position.set(pX, 0, pY)
 
-    // scene.add(food);
-    scene.add(poision);
-    addFoods(.5, 0, 0, 2);
+    addPoison();
+    addFoods();
 
 
     StartSound.play();
 
 
-        energybar = document.getElementById("energy-bar");
-        console.log('getting the energy');
+        energyBar = document.getElementById("energy-bar");
+        console.dir("the energybar is " + energyBar);
     }
 
     function handleWindowResize() {
