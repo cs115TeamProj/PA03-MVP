@@ -4,7 +4,7 @@ Physijs.scripts.ammo = '/js/ammo.js';
 //sounds
 var StartSound = new Audio("Sounds/StartSound.wav");
 var ExplodeSound = new Audio("Sounds/ExplodeSound.wav");
-var expandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
+var ExpandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
 
 
 var scene = new Physijs.Scene();
@@ -117,6 +117,7 @@ function isPoison(obj) {
 
 }
 
+
 function addPoison() {
   var poison;
   var loader = new THREE.JSONLoader();
@@ -158,7 +159,7 @@ function addPoison() {
 }
 
 function addFoods() {
-  var food_c;
+  // var food_c;
   var loader = new THREE.JSONLoader();
   // load a resource
   loader.load(
@@ -170,17 +171,17 @@ function addFoods() {
       // var object = new THREE.Mesh( geometry, material );
       var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
       var bananaGeom = geometry;
-      food_c = new Physijs.BoxMesh( bananaGeom, pcubeMat);
+      food = new Physijs.BoxMesh( bananaGeom, pcubeMat);
   //bananaGeom.matrix.scale( scale );
       // dude.scale.set(size, size, size);
     //  foods.push(banana);
-      food_c.castShadow    = true;
-      food_c.receiveShadow = false;
+      food.castShadow    = true;
+      food.receiveShadow = false;
       //banana.position.set(X, Y, Z);
       var fX = randomInt(-18, 18);
       var fY = randomInt(-18, 18);
-      food_c.position.set(fX, 0, fY);
-      scene.add(food_c);
+      food.position.set(fX, 0, fY);
+      scene.add(food);
   },
 
   // onProgress callback
@@ -219,13 +220,13 @@ function createDude(scale, X, Y, Z){
         scene.add( dude );
         dude.addEventListener( 'collision',
     				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-              var foodCand=isFood(other_object);
-      					if (foodCand==other_object){
+              var foodCand=isPoison(other_object);
+      					if (other_object==food){
                     //add more food
                     foodX = randomInt(-18, 18);
                     foodZ = randomInt(-18, 18);
-        						foodCand.position.set(foodX, 0, foodZ);
-        						foodCand.__dirtyPosition = true;
+        						food.position.set(foodX, 0, foodZ);
+        						food.__dirtyPosition = true;
 
                     //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
                     var dudeX = dude.position.x;
@@ -250,14 +251,14 @@ function createDude(scale, X, Y, Z){
                         dudes.splice(dudeIndex, 1);
 
                         createDude(scale, dudeX, dudeY, dudeZ);
-                        expandSounds[randomInt(0, expandSounds.length-1)].play();
+                        ExpandSounds[randomInt(0, ExpandSounds.length-1)].play();
                     }
-      					} else if(other_object==poision) {
+      					} else if(other_object==foodCand) {
                   //add more poision
                   var poisionX = randomInt(-18, 18);
                   var poisionY = randomInt(-18, 18);
-                  poision.position.set(poisionX, 0, poisionY);
-                  poision.__dirtyPosition = true;
+                  foodCand.position.set(poisionX, 0, poisionY);
+                  foodCand.__dirtyPosition = true;
 
                   //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
                   var dudeX = dude.position.x;
@@ -271,7 +272,7 @@ function createDude(scale, X, Y, Z){
                       dudes.splice(dudeIndex, 1);
                       console.dir(dudes);
                       createDude(scale, dudeX, dudeY, dudeZ);
-                      expandSounds[randomInt(0, expandSounds.length-1)].play();
+                      ExpandSounds[randomInt(0, ExpandSounds.length-1)].play();
                 }
     				}
     		)
@@ -377,12 +378,12 @@ function init(){
     light2.position.set( 0, 10, 0 );
     scene.add( light2 );
 
-    var posionG = new THREE.SphereGeometry( .5, 10, 10 );
-    var pMaterial = new THREE.MeshLambertMaterial({ color: 000000 });
+    var posionG       = new THREE.SphereGeometry( .5, 10, 10 );
+    var pMaterial     = new THREE.MeshLambertMaterial({ color: 000000 });
     var poisonMat     = new Physijs.createMaterial( pMaterial, .9, .5);
-    poison             = new Physijs.SphereMesh( posionG, poisonMat);
-    var pX = randomInt(-18, 18);
-    var pY = randomInt(-18, 18);
+    poison            = new Physijs.SphereMesh( posionG, poisonMat);
+    var pX            = randomInt(-18, 18);
+    var pY            = randomInt(-18, 18);
     poison.position.set(pX, 0, pY)
 
     addPoison();
