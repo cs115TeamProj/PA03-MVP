@@ -256,89 +256,6 @@ function createDude(scale, X, Y, Z){
 
 }
 
-
-// function createDude(scale, X, Y, Z){
-//     var dude;
-//     var currentColor = colors[randomInt(0, colors.length-1)];
-// 	  console.dir(currentColor);
-//     cubeMaterial  = new THREE.MeshLambertMaterial({ color:currentColor ,opacity: 0.95,transparent:true});
-//     cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
-//     var pcubeMat     = new Physijs.createMaterial( cubeMaterial, .9, .5);
-//     dudeMaterial = pcubeMat
-//     addDude(scale,X,Y,Z);
-// }
-//
-// var cubeMaterial=null
-// var cubeGeometry= null
-//
-// function addDude(scale, X, Y, Z){
-//       var dude  = new Physijs.BoxMesh( cubeGeometry, cubeMaterial);
-//       dudes.push(dude);
-//       dude.castShadow    = true;
-//       dude.receiveShadow = false;
-//       dude.position.set(X, Y, Z);
-//     scene.add( dude );
-//     console.log("the dude is " + dude);
-//
-//     dude.addEventListener( 'collision',
-// 				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-//           var foodCand=isFood(other_object);
-//   					if (foodCand==other_object){
-//                 //add more food
-//                 foodX = randomInt(-18, 18);
-//                 foodZ = randomInt(-18, 18);
-//     						foodCand.position.set(foodX, 0, foodZ);
-//     						foodCand.__dirtyPosition = true;
-//
-//                 //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
-//                 var dudeX = dude.position.x;
-//                 var dudeY = dude.position.y;
-//                 var dudeZ = dude.position.z;
-//                 var dudeSize = dude.geometry.parameters.height+1;
-//                 var dudeIndex;
-//                 if (dudeSize >=5){
-//                     dudeIndex = dudes.indexOf(this);
-//                     scene.remove(this);
-//                     dudes.splice(dudeIndex, 1);
-//                     for (var a=0; a<10; a++){
-//                         createDude(2, dudeX, dudeY, dudeZ);
-//                     }
-//                     ExplodeSound.play();
-//
-//                 } else {
-//
-//                     dudeIndex = dudes.indexOf(this);
-//                     scene.remove(this);
-//                     dudes.splice(dudeIndex, 1);
-//
-//                     createDude(dudeSize, dudeX, dudeY, dudeZ);
-//                     expandSounds[randomInt(0, expandSounds.length-1)].play();
-//                 }
-//   					} else if(other_object==poision) {
-//               //add more poision
-//               var poisionX = randomInt(-18, 18);
-//               var poisionY = randomInt(-18, 18);
-//               poision.position.set(poisionX, 0, poisionY);
-//               poision.__dirtyPosition = true;
-//
-//               //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
-//               var dudeX = dude.position.x;
-//               var dudeY = dude.position.y;
-//               var dudeZ = dude.position.z;
-//               var dudeSize = dude.geometry.parameters.height-1;
-//               var dudeIndex;
-//
-//                   dudeIndex = dudes.indexOf(this);
-//                   scene.remove(this);
-//                   dudes.splice(dudeIndex, 1);
-//                   console.dir(dudes);
-//                   createDude(dudeSize, dudeX, dudeY, dudeZ);
-//                   expandSounds[randomInt(0, expandSounds.length-1)].play();
-//             }
-// 				}
-// 		)
-// }
-
 function reduceEnergy(){
   energy -= 5;
   console.log('reducing energy');
@@ -520,8 +437,6 @@ function animate() {
     update_camera();
     scene.simulate();
     renderer.render( scene, camera );
-
-    //dude.setLinearVelocity(dude.getWorldDirection().multiplyScalar(5))
 }
 
 init();
