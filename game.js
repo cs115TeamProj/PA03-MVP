@@ -127,119 +127,215 @@ function addFoods(scale, X, Y, Z) {
   'models/banana.json',
   // onLoad callback
   function ( geometry, materials ) {
-      var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
-      // var object = new THREE.Mesh( geometry, material );
-      var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
-      var bananaGeom = geometry;
-      bananaGeom.scale(scale, scale, scale);
-      food_c = new Physijs.BoxMesh( bananaGeom, pcubeMat);
-  //bananaGeom.matrix.scale( scale );
-      // dude.scale.set(size, size, size);
-    //  foods.push(banana);
-      food_c.castShadow    = true;
-      food_c.receiveShadow = false;
-      //banana.position.set(X, Y, Z);
-      var fX = randomInt(-18, 18);
-      var fY = randomInt(-18, 18);
-      food_c.position.set(fX, 0, fY);
-      allFood.push(food_c)
-      scene.add(food_c);
-  },
+        var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
+        // var object = new THREE.Mesh( geometry, material );
+        var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+        var bananaGeom = geometry;
+        bananaGeom.scale(scale, scale, scale);
+        food_c = new Physijs.BoxMesh( bananaGeom, pcubeMat);
+    //bananaGeom.matrix.scale( scale );
+        // dude.scale.set(size, size, size);
+      //  foods.push(banana);
+        food_c.castShadow    = true;
+        food_c.receiveShadow = false;
+        //banana.position.set(X, Y, Z);
+        var fX = randomInt(-18, 18);
+        var fY = randomInt(-18, 18);
+        food_c.position.set(fX, 0, fY);
+        allFood.push(food_c)
+        scene.add(food_c);
+    },
 
-  // onProgress callback
-  function ( xhr ) {
-      console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-  },
+    // onProgress callback
+    function ( xhr ) {
+        console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+    },
 
-  // onError callback
-  function( err ) {
-      console.log( 'An error happened' );
+    // onError callback
+    function( err ) {
+        console.log( 'An error happened' );
+    }
+    );
   }
-  );
-}
 }
 
 function createDude(scale, X, Y, Z){
     var dude;
-    var currentColor = colors[randomInt(0, colors.length-1)];
-	  console.dir(currentColor);
-    cubeMaterial  = new THREE.MeshLambertMaterial({ color:currentColor ,opacity: 0.95,transparent:true});
-    cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
-    var pcubeMat     = new Physijs.createMaterial( cubeMaterial, .9, .5);
-    dudeMaterial = pcubeMat
-    addDude(scale,X,Y,Z);
-}
+    var loader = new THREE.JSONLoader();
+    // load a resource
+    loader.load(
+    // resource URL
+    'models/suzanne.json',
+    // onLoad callback
+    function ( geometry, materials ) {
+        var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
+        // var object = new THREE.Mesh( geometry, material );
+        var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+        var dudeGeom = geometry;
+        dudeGeom.scale(scale, scale, scale);
+        dude = new Physijs.BoxMesh( dudeGeom, pcubeMat);
+        // dude.scale.set(size, size, size);
+        dudes.push(dude);
+        dude.castShadow    = true;
+        dude.receiveShadow = false;
+        dude.position.set(X, Y, Z);
+        scene.add( dude );
+        dude.addEventListener( 'collision',
+    				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+              var foodCand=isFood(other_object);
+      					if (foodCand==other_object){
+                    //add more food
+                    foodX = randomInt(-18, 18);
+                    foodZ = randomInt(-18, 18);
+        						foodCand.position.set(foodX, 0, foodZ);
+        						foodCand.__dirtyPosition = true;
 
-var cubeMaterial=null
-var cubeGeometry= null
+                    //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
+                    var dudeX = dude.position.x;
+                    var dudeY = dude.position.y;
+                    var dudeZ = dude.position.z;
+                    var dudeSize = dude.geometry.parameters.height+1;
+                    var dudeIndex;
+                    if (dudeSize >=5){
+                        dudeIndex = dudes.indexOf(this);
+                        scene.remove(this);
+                        dudes.splice(dudeIndex, 1);
+                        for (var a=0; a<10; a++){
+                            createDude(2, dudeX, dudeY, dudeZ);
+                        }
+                        ExplodeSound.play();
 
-function addDude(scale, X, Y, Z){
-      var dude  = new Physijs.BoxMesh( cubeGeometry, cubeMaterial);
-      dudes.push(dude);
-      dude.castShadow    = true;
-      dude.receiveShadow = false;
-      dude.position.set(X, Y, Z);
-    scene.add( dude );
-    console.log("the dude is " + dude);
+                    } else {
 
-    dude.addEventListener( 'collision',
-				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-          var foodCand=isFood(other_object);
-  					if (foodCand==other_object){
-                //add more food
-                foodX = randomInt(-18, 18);
-                foodZ = randomInt(-18, 18);
-    						foodCand.position.set(foodX, 0, foodZ);
-    						foodCand.__dirtyPosition = true;
+                        dudeIndex = dudes.indexOf(this);
+                        scene.remove(this);
+                        dudes.splice(dudeIndex, 1);
 
-                //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
-                var dudeX = dude.position.x;
-                var dudeY = dude.position.y;
-                var dudeZ = dude.position.z;
-                var dudeSize = dude.geometry.parameters.height+1;
-                var dudeIndex;
-                if (dudeSize >=5){
-                    dudeIndex = dudes.indexOf(this);
-                    scene.remove(this);
-                    dudes.splice(dudeIndex, 1);
-                    for (var a=0; a<10; a++){
-                        createDude(2, dudeX, dudeY, dudeZ);
+                        createDude(dudeSize, dudeX, dudeY, dudeZ);
+                        expandSounds[randomInt(0, expandSounds.length-1)].play();
                     }
-                    ExplodeSound.play();
+      					} else if(other_object==poision) {
+                  //add more poision
+                  var poisionX = randomInt(-18, 18);
+                  var poisionY = randomInt(-18, 18);
+                  poision.position.set(poisionX, 0, poisionY);
+                  poision.__dirtyPosition = true;
 
-                } else {
+                  //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
+                  var dudeX = dude.position.x;
+                  var dudeY = dude.position.y;
+                  var dudeZ = dude.position.z;
+                  var dudeSize = dude.geometry.parameters.height-1;
+                  var dudeIndex;
 
-                    dudeIndex = dudes.indexOf(this);
-                    scene.remove(this);
-                    dudes.splice(dudeIndex, 1);
-
-                    createDude(dudeSize, dudeX, dudeY, dudeZ);
-                    expandSounds[randomInt(0, expandSounds.length-1)].play();
+                      dudeIndex = dudes.indexOf(this);
+                      scene.remove(this);
+                      dudes.splice(dudeIndex, 1);
+                      console.dir(dudes);
+                      createDude(dudeSize, dudeX, dudeY, dudeZ);
+                      expandSounds[randomInt(0, expandSounds.length-1)].play();
                 }
-  					} else if(other_object==poision) {
-              //add more poision
-              var poisionX = randomInt(-18, 18);
-              var poisionY = randomInt(-18, 18);
-              poision.position.set(poisionX, 0, poisionY);
-              poision.__dirtyPosition = true;
+    				}
+    		)
+        scene.add( dude );
+    },
 
-              //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
-              var dudeX = dude.position.x;
-              var dudeY = dude.position.y;
-              var dudeZ = dude.position.z;
-              var dudeSize = dude.geometry.parameters.height-1;
-              var dudeIndex;
+    // onProgress callback
+    function ( xhr ) {
+        console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+    },
 
-                  dudeIndex = dudes.indexOf(this);
-                  scene.remove(this);
-                  dudes.splice(dudeIndex, 1);
-                  console.dir(dudes);
-                  createDude(dudeSize, dudeX, dudeY, dudeZ);
-                  expandSounds[randomInt(0, expandSounds.length-1)].play();
-            }
-				}
-		)
+    // onError callback
+    function( err ) {
+        console.log( 'An error happened' );
+    }
+    );
+
+
 }
+
+
+// function createDude(scale, X, Y, Z){
+//     var dude;
+//     var currentColor = colors[randomInt(0, colors.length-1)];
+// 	  console.dir(currentColor);
+//     cubeMaterial  = new THREE.MeshLambertMaterial({ color:currentColor ,opacity: 0.95,transparent:true});
+//     cubeGeometry = new THREE.BoxGeometry( scale, scale, scale );
+//     var pcubeMat     = new Physijs.createMaterial( cubeMaterial, .9, .5);
+//     dudeMaterial = pcubeMat
+//     addDude(scale,X,Y,Z);
+// }
+//
+// var cubeMaterial=null
+// var cubeGeometry= null
+//
+// function addDude(scale, X, Y, Z){
+//       var dude  = new Physijs.BoxMesh( cubeGeometry, cubeMaterial);
+//       dudes.push(dude);
+//       dude.castShadow    = true;
+//       dude.receiveShadow = false;
+//       dude.position.set(X, Y, Z);
+//     scene.add( dude );
+//     console.log("the dude is " + dude);
+//
+//     dude.addEventListener( 'collision',
+// 				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+//           var foodCand=isFood(other_object);
+//   					if (foodCand==other_object){
+//                 //add more food
+//                 foodX = randomInt(-18, 18);
+//                 foodZ = randomInt(-18, 18);
+//     						foodCand.position.set(foodX, 0, foodZ);
+//     						foodCand.__dirtyPosition = true;
+//
+//                 //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
+//                 var dudeX = dude.position.x;
+//                 var dudeY = dude.position.y;
+//                 var dudeZ = dude.position.z;
+//                 var dudeSize = dude.geometry.parameters.height+1;
+//                 var dudeIndex;
+//                 if (dudeSize >=5){
+//                     dudeIndex = dudes.indexOf(this);
+//                     scene.remove(this);
+//                     dudes.splice(dudeIndex, 1);
+//                     for (var a=0; a<10; a++){
+//                         createDude(2, dudeX, dudeY, dudeZ);
+//                     }
+//                     ExplodeSound.play();
+//
+//                 } else {
+//
+//                     dudeIndex = dudes.indexOf(this);
+//                     scene.remove(this);
+//                     dudes.splice(dudeIndex, 1);
+//
+//                     createDude(dudeSize, dudeX, dudeY, dudeZ);
+//                     expandSounds[randomInt(0, expandSounds.length-1)].play();
+//                 }
+//   					} else if(other_object==poision) {
+//               //add more poision
+//               var poisionX = randomInt(-18, 18);
+//               var poisionY = randomInt(-18, 18);
+//               poision.position.set(poisionX, 0, poisionY);
+//               poision.__dirtyPosition = true;
+//
+//               //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
+//               var dudeX = dude.position.x;
+//               var dudeY = dude.position.y;
+//               var dudeZ = dude.position.z;
+//               var dudeSize = dude.geometry.parameters.height-1;
+//               var dudeIndex;
+//
+//                   dudeIndex = dudes.indexOf(this);
+//                   scene.remove(this);
+//                   dudes.splice(dudeIndex, 1);
+//                   console.dir(dudes);
+//                   createDude(dudeSize, dudeX, dudeY, dudeZ);
+//                   expandSounds[randomInt(0, expandSounds.length-1)].play();
+//             }
+// 				}
+// 		)
+// }
 
 function reduceEnergy(){
   energy -= 5;
