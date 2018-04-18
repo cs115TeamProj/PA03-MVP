@@ -171,10 +171,8 @@ function addFoods() {
       // var object = new THREE.Mesh( geometry, material );
       var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
       var bananaGeom = geometry;
+      bananaGeom.scale(.5, .5, .5);
       food = new Physijs.BoxMesh( bananaGeom, pcubeMat);
-  //bananaGeom.matrix.scale( scale );
-      // dude.scale.set(size, size, size);
-    //  foods.push(banana);
       food.castShadow    = true;
       food.receiveShadow = false;
       //banana.position.set(X, Y, Z);
@@ -270,7 +268,6 @@ function createDude(scale, X, Y, Z){
                       dudeIndex = dudes.indexOf(this);
                       scene.remove(this);
                       dudes.splice(dudeIndex, 1);
-                      console.dir(dudes);
                       createDude(scale, dudeX, dudeY, dudeZ);
                       ExpandSounds[randomInt(0, ExpandSounds.length-1)].play();
                 }
