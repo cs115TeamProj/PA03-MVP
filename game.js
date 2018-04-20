@@ -6,6 +6,27 @@ var StartSound = new Audio("Sounds/StartSound.wav");
 var ExplodeSound = new Audio("Sounds/ExplodeSound.wav");
 var ExpandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
 
+var geometry = new THREE.SphereGeometry(50, 60, 40);
+geometry.scale(-1, 1, 1);
+var material = new THREE.MeshBasicMaterial({
+				map: new THREE.TextureLoader().load('../images/ocean.jpg') //sets background iamge
+			});
+			mesh = new THREE.Mesh(geometry, material);
+
+// instantiate a loader
+//var loader = new THREE.TextureLoader();
+
+// load a resource
+//var texture = loader.load( 'images/jungle.jpg' );
+//var backgroundMesh = new THREE.Mesh(
+        //        new THREE.PlaneGeometry(75, 75, 10),
+        //        new THREE.MeshBasicMaterial({
+        //            map: texture
+          //      }));
+
+    //        backgroundMesh.material.depthTest = false;
+    //        backgroundMesh.material.depthWrite = false;
+
 
 var scene = new Physijs.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -330,7 +351,7 @@ function init(){
     createEnergyBar(0);
 
     var floorGeometry = new THREE.PlaneGeometry( 40, 40, 128 );
-    var floorMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff } );
+    var floorMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, opacity: 0, transparent: true  } );
     var pfloorMat     = new Physijs.createMaterial( floorMaterial, .9, .5);
     floor             = new Physijs.BoxMesh( floorGeometry, pfloorMat, 0);
 
@@ -382,6 +403,8 @@ function init(){
     light2.castShadow = true;
     light2.position.set( 0, 10, 0 );
     scene.add( light2 );
+
+    scene.add(mesh);
 
     var posionG       = new THREE.SphereGeometry( .5, 10, 10 );
     var pMaterial     = new THREE.MeshLambertMaterial({ color: 000000 });
@@ -469,7 +492,10 @@ function animate() {
     updateDude();
     update_camera();
     scene.simulate();
+    renderer.clear();
+  //  renderer.render(backgroundScene,backgroundCamera);
     renderer.render( scene, camera );
+
 }
 
 init();
