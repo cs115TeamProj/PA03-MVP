@@ -8,6 +8,7 @@ var ExpandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSo
 
 var geometry = new THREE.SphereGeometry(50, 60, 40);
 geometry.scale(-1, 1, 1);
+
 var material = new THREE.MeshBasicMaterial({
 				map: new THREE.TextureLoader().load('../images/ocean.jpg') //sets background iamge
 			});
@@ -29,7 +30,7 @@ var material = new THREE.MeshBasicMaterial({
 
 
 var scene = new Physijs.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+var camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.z = 30;
 camera.lookAt(0,0,0);
 
@@ -38,12 +39,13 @@ var floor;
 var wallBack, wallLeft, wallRight, wallFront;
 var dudes = [];
 var food;
-var energy = 10;
 var lifeBar;
 var allPoison=[];
 var poison;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 var light2 = new THREE.SpotLight( 0x0000ff);
+var gameState =
+		 {level:0, energy:10, speed: 10, reset: false, scene:'main', camera:'none' }
 
 var controls = {
     left: false,
@@ -190,7 +192,7 @@ function addFoods() {
       function ( geometry, materials ) {
           var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
           // var object = new THREE.Mesh( geometry, material );
-          var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+          var pcubeMat     = new Physijs.createMaterial( material, .9, .1);
           var bananaGeom = geometry;
           bananaGeom.scale(.5, .5, .5);
           food = new Physijs.BoxMesh( bananaGeom, pcubeMat);
@@ -232,13 +234,18 @@ function createDude(scale, X, Y, Z) {
             dudeGeom.scale(scale, scale, scale);
             dude = new Physijs.BoxMesh( dudeGeom, pcubeMat);
             dudes.push(dude);
+						if(dudes.length == gameState.level + 1){
+							gameState.level += 1;
+							console.log("leveling up " + gameState.level);
+						}
             dude.castShadow    = true;
             dude.receiveShadow = false;
             dude.position.set(X, Y, Z);
             scene.add( dude );
             dude.addEventListener( 'collision',
         				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-                  var foodCand=isPoison(other_object);
+									var touched_poison=isPoison(other_object);
+									console.log("the size of the array is (before touching yellow banana)" + dudes.length);
           					if (other_object==food){
                         //add more food
                         foodX = randomInt(-18, 18);
@@ -256,24 +263,28 @@ function createDude(scale, X, Y, Z) {
                             dudeIndex = dudes.indexOf(this);
                             scene.remove(this);
                             dudes.splice(dudeIndex, 1);
-                            for (var a=0; a<10; a++){
+                            for (var a=0; a<2; a++){
                                 createDude(1, dudeX, dudeY, dudeZ);
+																console.log("creating dude");
                             }
                             scale = 1;
                             ExplodeSound.play();
-                        } else {
+                        } //in this else statement it messes up the size of the array
+												else {
                             dudeIndex = dudes.indexOf(this);
                             scene.remove(this);
                             dudes.splice(dudeIndex, 1);
                             createDude(scale, dudeX, dudeY, dudeZ);
                             ExpandSounds[randomInt(0, ExpandSounds.length-1)].play();
                         }
-          					} else if(other_object==foodCand) {
+												console.log("the size of the array is (after touching yellow banana)" + dudes.length);
+												console.log(dudes);
+          					} else if(other_object==touched_poison) {
                         //add more poision
                         var foodX = randomInt(-18, 18);
                         var foodY = randomInt(-18, 18);
-                        foodCand.position.set(foodX, 0, foodY);
-                        foodCand.__dirtyPosition = true;
+                        touched_poison.position.set(foodX, 0, foodY);
+                        touched_poison.__dirtyPosition = true;
                         reduceEnergy();
                         // //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
                         // var dudeX = dude.position.x;
@@ -306,7 +317,7 @@ function createDude(scale, X, Y, Z) {
 }
 
 function createEnergyBar(position) {
-    var lifeBarGeom   = new THREE.PlaneGeometry( energy, 1, 128 );
+    var lifeBarGeom   = new THREE.PlaneGeometry( gameState.energy, 1, 128 );
     var lifeBarMat    = new THREE.MeshLambertMaterial({color: 0xff0000});
     lifeBar           = new THREE.Mesh(lifeBarGeom, lifeBarMat);
     lifeBar.position.set(position, 18, -5);
@@ -314,15 +325,15 @@ function createEnergyBar(position) {
 }
 
 function reduceEnergy(){
-  energy -= 1;
-  var position = (energy-10)/2;
+  gameState.energy -= 1;
+  var position = (gameState.energy-10)/2;
   scene.remove(lifeBar);
   createEnergyBar(position, lifeBar);
   // var differenceInSize = lifeBar.scale.x - lifeBar.scale.x*.8;
   // lifeBar.scale.x = lifeBar.scale.x*.8;
   // lifeBar.position.x -= (differenceInSize);
   console.log('reducing energy');
-  if (energy <1){
+  if (gameState.energy <1){
       console.log("game over");
   }
 }
@@ -334,6 +345,15 @@ function newWall(){
   return (new Physijs.BoxMesh( wallGeometry, pwallMat, 0));
 }
 
+function positioningWall(wall, x, y, z){
+	wall.castShadow = false;
+	wall.receiveShadow = true;
+	wall.position.x = x;
+	wall.position.y = y;
+	wall.position.z = z;
+}
+
+
 function init(){
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMap.enabled = true;
@@ -341,7 +361,6 @@ function init(){
     var container = document.createElement( 'div' );
     container.style.position = 'relative';
     document.body.appendChild( container );
-    //container.appendChild( renderer.domElement ); //puts the canvas onto the page
 
     var foreground = document.getElementById('world');
     container.appendChild( renderer.domElement ); //puts the canvas onto the page
@@ -367,33 +386,19 @@ function init(){
     wallRight         = newWall();
     wallFront         = newWall();
 
-    wallBack.castShadow    = false;
-    wallBack.receiveShadow = true;
-    wallBack.position.y    = 4;
-    wallBack.position.z    = -21;
+		positioningWall(wallBack, 0 , 4, -21);
     wallBack.rotateX(Math.PI);
     scene.add( wallBack );
 
-    wallLeft.castShadow    = false;
-    wallLeft.receiveShadow = true;
-    wallLeft.position.y    = 4;
-    wallLeft.position.x    = -20;
-    wallLeft.position.z    = -1;
+		positioningWall(wallLeft, -20 , 4, -1);
     wallLeft.rotateY(-Math.PI/2);
     scene.add( wallLeft );
 
-    wallRight.castShadow    = false;
-    wallRight.receiveShadow = true;
-    wallRight.position.y    = 4;
-    wallRight.position.x    = 20;
-    wallRight.position.z    = -1;
+		positioningWall(wallRight, 20 , 4, -1);
     wallRight.rotateY(Math.PI/2);
     scene.add( wallRight );
 
-    wallFront.castShadow    = false;
-    wallFront.receiveShadow = true;
-    wallFront.position.y    = 4;
-    wallFront.position.z    = 19;
+		positioningWall(wallFront, 0 , 4, 19);
     // wallFront.rotateX(Math.PI);
     scene.add( wallFront );
 
@@ -458,31 +463,30 @@ function update_camera(){
   camera.lookAt(0,0,0);
 }
 
-var dudeSpeed = 10;
 function updateDude(){
-  if (dudes.length>10){
-    dudeSpeed = 15;
-  } else if (dudes.length > 20){
-    dudeSpeed = 20;
+  if (gameState.energy < 3){
+    gameState.speed = 5;
+  } else if (dudes.length < 5){
+    gameState.speed = 8;
   }
   if(controls.left){
     dudes.forEach(function(element) {
-        element.setLinearVelocity(new THREE.Vector3(-dudeSpeed,0,0));
+        element.setLinearVelocity(new THREE.Vector3(-gameState.speed,0,0));
     });
   }
   if(controls.right){
     dudes.forEach(function(element) {
-        element.setLinearVelocity(new THREE.Vector3(dudeSpeed,0,0));
+        element.setLinearVelocity(new THREE.Vector3(gameState.speed,0,0));
     });
   }
   if(controls.forward){
     dudes.forEach(function(element) {
-        element.setLinearVelocity(new THREE.Vector3(0,0,-dudeSpeed));
+        element.setLinearVelocity(new THREE.Vector3(0,0,-gameState.speed));
     });
   }
   if(controls.backward){
     dudes.forEach(function(element) {
-        element.setLinearVelocity(new THREE.Vector3(0,0,dudeSpeed));
+        element.setLinearVelocity(new THREE.Vector3(0,0,gameState.speed));
     });
   }
 }
@@ -495,8 +499,18 @@ function animate() {
     renderer.clear();
   //  renderer.render(backgroundScene,backgroundCamera);
     renderer.render( scene, camera );
+		//draw heads up display ..
+		var gameOver = "";
+		if(gameState.level <= 0){
+			gameOver = "GAME OVER!";
+		}
 
+		var info = document.getElementById("info");
+		info.innerHTML='<div style="font-size:24pt">Level: ' + gameState.level +
+		'  Energy:'+ gameState.energy + gameOver +
+				'</div>';
 }
+
 
 init();
 animate();
