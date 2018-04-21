@@ -8,6 +8,7 @@ var ExpandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSo
 
 var geometry = new THREE.SphereGeometry(50, 60, 40);
 geometry.scale(-1, 1, 1);
+
 var material = new THREE.MeshBasicMaterial({
 				map: new THREE.TextureLoader().load('../images/ocean.jpg') //sets background iamge
 			});
@@ -29,7 +30,7 @@ var material = new THREE.MeshBasicMaterial({
 
 
 var scene = new Physijs.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+var camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.z = 30;
 camera.lookAt(0,0,0);
 
@@ -44,7 +45,7 @@ var poison;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 var light2 = new THREE.SpotLight( 0x0000ff);
 var gameState =
-		 {level:0, energy:10, speed: 10, scene:'main', camera:'none' }
+		 {level:0, energy:10, speed: 10, reset: false, scene:'main', camera:'none' }
 
 var controls = {
     left: false,
@@ -191,7 +192,7 @@ function addFoods() {
       function ( geometry, materials ) {
           var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
           // var object = new THREE.Mesh( geometry, material );
-          var pcubeMat     = new Physijs.createMaterial( material, .9, .5);
+          var pcubeMat     = new Physijs.createMaterial( material, .9, .1);
           var bananaGeom = geometry;
           bananaGeom.scale(.5, .5, .5);
           food = new Physijs.BoxMesh( bananaGeom, pcubeMat);
@@ -464,9 +465,9 @@ function update_camera(){
 
 function updateDude(){
   if (gameState.energy < 3){
-    gameState.speed = 4;
+    gameState.speed = 5;
   } else if (dudes.length < 5){
-    gameState.speed = 7;
+    gameState.speed = 8;
   }
   if(controls.left){
     dudes.forEach(function(element) {
@@ -498,13 +499,18 @@ function animate() {
     renderer.clear();
   //  renderer.render(backgroundScene,backgroundCamera);
     renderer.render( scene, camera );
+		//draw heads up display ..
+		var gameOver = "";
+		if(gameState.level <= 0){
+			gameOver = "GAME OVER!";
+		}
 
+		var info = document.getElementById("info");
+		info.innerHTML='<div style="font-size:24pt">Level: ' + gameState.level +
+		'  Energy:'+ gameState.energy + gameOver +
+				'</div>';
 }
 
-//draw heads up display ..
-var info = document.getElementById("info");
-info.innerHTML='<div style="font-size:24pt">Level: ' + gameState.level +
-'  Energy:'+ gameState.energy +
-		'</div>';
+
 init();
 animate();
