@@ -38,12 +38,13 @@ var floor;
 var wallBack, wallLeft, wallRight, wallFront;
 var dudes = [];
 var food;
-var energy = 10;
 var lifeBar;
 var allPoison=[];
 var poison;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 var light2 = new THREE.SpotLight( 0x0000ff);
+var gameState =
+		 {level:0, energy:10, scene:'main', camera:'none' }
 
 var controls = {
     left: false,
@@ -232,13 +233,18 @@ function createDude(scale, X, Y, Z) {
             dudeGeom.scale(scale, scale, scale);
             dude = new Physijs.BoxMesh( dudeGeom, pcubeMat);
             dudes.push(dude);
+						if(dudes.length == gameState.level + 1){
+							gameState.level += 1;
+							console.log("leveling up " + gameState.level);
+						}
             dude.castShadow    = true;
             dude.receiveShadow = false;
             dude.position.set(X, Y, Z);
             scene.add( dude );
             dude.addEventListener( 'collision',
         				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-                  var foodCand=isPoison(other_object);
+									var touched_poison=isPoison(other_object);
+									console.log("the size of the array is (before touching yellow banana)" + dudes.length);
           					if (other_object==food){
                         //add more food
                         foodX = randomInt(-18, 18);
@@ -256,24 +262,28 @@ function createDude(scale, X, Y, Z) {
                             dudeIndex = dudes.indexOf(this);
                             scene.remove(this);
                             dudes.splice(dudeIndex, 1);
-                            for (var a=0; a<10; a++){
+                            for (var a=0; a<2; a++){
                                 createDude(1, dudeX, dudeY, dudeZ);
+																console.log("creating dude");
                             }
                             scale = 1;
                             ExplodeSound.play();
-                        } else {
+                        } //in this else statement it messes up the size of the array
+												else {
                             dudeIndex = dudes.indexOf(this);
                             scene.remove(this);
                             dudes.splice(dudeIndex, 1);
                             createDude(scale, dudeX, dudeY, dudeZ);
                             ExpandSounds[randomInt(0, ExpandSounds.length-1)].play();
                         }
-          					} else if(other_object==foodCand) {
+												console.log("the size of the array is (after touching yellow banana)" + dudes.length);
+												console.log(dudes);
+          					} else if(other_object==touched_poison) {
                         //add more poision
                         var foodX = randomInt(-18, 18);
                         var foodY = randomInt(-18, 18);
-                        foodCand.position.set(foodX, 0, foodY);
-                        foodCand.__dirtyPosition = true;
+                        touched_poison.position.set(foodX, 0, foodY);
+                        touched_poison.__dirtyPosition = true;
                         reduceEnergy();
                         // //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
                         // var dudeX = dude.position.x;
@@ -306,7 +316,7 @@ function createDude(scale, X, Y, Z) {
 }
 
 function createEnergyBar(position) {
-    var lifeBarGeom   = new THREE.PlaneGeometry( energy, 1, 128 );
+    var lifeBarGeom   = new THREE.PlaneGeometry( gameState.energy, 1, 128 );
     var lifeBarMat    = new THREE.MeshLambertMaterial({color: 0xff0000});
     lifeBar           = new THREE.Mesh(lifeBarGeom, lifeBarMat);
     lifeBar.position.set(position, 18, -5);
@@ -314,15 +324,15 @@ function createEnergyBar(position) {
 }
 
 function reduceEnergy(){
-  energy -= 1;
-  var position = (energy-10)/2;
+  gameState.energy -= 1;
+  var position = (gameState.energy-10)/2;
   scene.remove(lifeBar);
   createEnergyBar(position, lifeBar);
   // var differenceInSize = lifeBar.scale.x - lifeBar.scale.x*.8;
   // lifeBar.scale.x = lifeBar.scale.x*.8;
   // lifeBar.position.x -= (differenceInSize);
   console.log('reducing energy');
-  if (energy <1){
+  if (gameState.energy <1){
       console.log("game over");
   }
 }
@@ -498,5 +508,10 @@ function animate() {
 
 }
 
+//draw heads up display ..
+var info = document.getElementById("info");
+info.innerHTML='<div style="font-size:24pt">Level: ' + gameState.level +
+'  Energy:'+ gameState.energy +
+		'</div>';
 init();
 animate();
