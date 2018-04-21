@@ -44,7 +44,7 @@ var poison;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 var light2 = new THREE.SpotLight( 0x0000ff);
 var gameState =
-		 {level:0, energy:10, scene:'main', camera:'none' }
+		 {level:0, energy:10, speed: 10, scene:'main', camera:'none' }
 
 var controls = {
     left: false,
@@ -344,6 +344,15 @@ function newWall(){
   return (new Physijs.BoxMesh( wallGeometry, pwallMat, 0));
 }
 
+function positioningWall(wall, x, y, z){
+	wall.castShadow = false;
+	wall.receiveShadow = true;
+	wall.position.x = x;
+	wall.position.y = y;
+	wall.position.z = z;
+}
+
+
 function init(){
     renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMap.enabled = true;
@@ -351,7 +360,6 @@ function init(){
     var container = document.createElement( 'div' );
     container.style.position = 'relative';
     document.body.appendChild( container );
-    //container.appendChild( renderer.domElement ); //puts the canvas onto the page
 
     var foreground = document.getElementById('world');
     container.appendChild( renderer.domElement ); //puts the canvas onto the page
@@ -377,33 +385,19 @@ function init(){
     wallRight         = newWall();
     wallFront         = newWall();
 
-    wallBack.castShadow    = false;
-    wallBack.receiveShadow = true;
-    wallBack.position.y    = 4;
-    wallBack.position.z    = -21;
+		positioningWall(wallBack, 0 , 4, -21);
     wallBack.rotateX(Math.PI);
     scene.add( wallBack );
 
-    wallLeft.castShadow    = false;
-    wallLeft.receiveShadow = true;
-    wallLeft.position.y    = 4;
-    wallLeft.position.x    = -20;
-    wallLeft.position.z    = -1;
+		positioningWall(wallLeft, -20 , 4, -1);
     wallLeft.rotateY(-Math.PI/2);
     scene.add( wallLeft );
 
-    wallRight.castShadow    = false;
-    wallRight.receiveShadow = true;
-    wallRight.position.y    = 4;
-    wallRight.position.x    = 20;
-    wallRight.position.z    = -1;
+		positioningWall(wallRight, 20 , 4, -1);
     wallRight.rotateY(Math.PI/2);
     scene.add( wallRight );
 
-    wallFront.castShadow    = false;
-    wallFront.receiveShadow = true;
-    wallFront.position.y    = 4;
-    wallFront.position.z    = 19;
+		positioningWall(wallFront, 0 , 4, 19);
     // wallFront.rotateX(Math.PI);
     scene.add( wallFront );
 
@@ -468,31 +462,30 @@ function update_camera(){
   camera.lookAt(0,0,0);
 }
 
-var dudeSpeed = 10;
 function updateDude(){
-  if (dudes.length>10){
-    dudeSpeed = 15;
-  } else if (dudes.length > 20){
-    dudeSpeed = 20;
+  if (gameState.energy < 3){
+    gameState.speed = 4;
+  } else if (dudes.length < 5){
+    gameState.speed = 7;
   }
   if(controls.left){
     dudes.forEach(function(element) {
-        element.setLinearVelocity(new THREE.Vector3(-dudeSpeed,0,0));
+        element.setLinearVelocity(new THREE.Vector3(-gameState.speed,0,0));
     });
   }
   if(controls.right){
     dudes.forEach(function(element) {
-        element.setLinearVelocity(new THREE.Vector3(dudeSpeed,0,0));
+        element.setLinearVelocity(new THREE.Vector3(gameState.speed,0,0));
     });
   }
   if(controls.forward){
     dudes.forEach(function(element) {
-        element.setLinearVelocity(new THREE.Vector3(0,0,-dudeSpeed));
+        element.setLinearVelocity(new THREE.Vector3(0,0,-gameState.speed));
     });
   }
   if(controls.backward){
     dudes.forEach(function(element) {
-        element.setLinearVelocity(new THREE.Vector3(0,0,dudeSpeed));
+        element.setLinearVelocity(new THREE.Vector3(0,0,gameState.speed));
     });
   }
 }
