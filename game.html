@@ -31,6 +31,18 @@ that cast shadows!
 				max-height: 10px;
 				border:1px solid black;
 			}
+			#game_info{
+				position: absolute;
+				float: left;
+				z-index: 999;
+				left: calc(50% - 50px);
+				top: 10px;
+				color:red;
+				border:1px solid white;
+				background-color: white;
+				font-weight: bold;
+				font-size: 20px;
+			}
 		</style>
 		<link rel="stylesheet" type="text/css" href="game.css" />
 
@@ -39,6 +51,7 @@ that cast shadows!
 		<script type="text/javascript" src="js/three.js"></script>
     <script type="text/javascript" src="js/physi.js"></script>
 		<script type="text/javascript" src="libs/dat.gui.min.js"></script>
+		<div id="game_info"></div>
 		<div class="UI">
 			<div class="energy_bar" id="eb_1"></div>
 			<div class="energy_bar" id="eb_2"></div>
@@ -52,21 +65,10 @@ that cast shadows!
 			<div class="energy_bar" id="eb_10"></div>
 		</div>
 		<!-- <script src="../loaders/JSONLoader.js"></script> -->
-		<!--<div id="info"></div>-->
 		<div class="game-holder" id="gameHolder">
 			<div class="header">
-			<script src="game.js"></script>
-			<!-- <h1> PA03 </h1> -->
-				<div class="score" id="score">
-					<div class="score__content" id="energy">
-						<div class="score__label">energy</div>
-						<!-- <div class="score__value score__value--energy" id="energyValue">
-							<div class = "energy-bar" id="energy-bar"></div>
-						</div> -->
-					</div>
-				</div>
+					<script src="game.js"></script>
 			</div>
-			<div id="world"> </div>
 		</div>
 	</body>
 </html>

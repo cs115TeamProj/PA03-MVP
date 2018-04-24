@@ -504,6 +504,7 @@ function updateDude(){
   }
 
 }
+var info = document.getElementById("game_info");
 
 function animate() {
     requestAnimationFrame( animate );
@@ -518,12 +519,7 @@ function animate() {
 		if(gameState.level <= 0){
 			gameOver = "GAME OVER!";
 		}
-/*
-		var info = document.getElementById("info");
-		info.innerHTML='<div style="font-size:24pt">Level: ' + gameState.level +
-		'  Energy:'+ gameState.energy + gameOver +
-				'</div>';
-*/
+		info.innerHTML="Level: " + gameState.level;
 }
 
 
