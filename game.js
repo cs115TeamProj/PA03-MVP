@@ -44,8 +44,7 @@ var allPoison=[];
 var poison;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 var light2 = new THREE.SpotLight( 0x0000ff);
-var gameState =
-		 {level:0, energy:10, speed: 10, reset: false, scene:'main', camera:'none' }
+var gameState = {level:1, energy:10, speed: 10, reset: false, scene:'main', camera:'none' };
 
 var controls = {
     left: false,
@@ -142,10 +141,16 @@ function isPoison(obj) {
 }
 
 function addPoison() {
+      var poisonCount = 0;
       var poison;
       var loader = new THREE.JSONLoader();
       // load a resource
-      for(var i = 0; i < 5; i++){
+      if(gameState.level == 1){
+          poisonCount = 1;
+      } else if (gameState.level >= 2){
+          poisonCount = 5;
+      }
+      for(var i = 0; i < poisonCount; i++){
           loader.load(
               // resource URL
               'models/banana.json',
@@ -182,7 +187,10 @@ function addPoison() {
 }
 
 function addFoods() {
-  // var food_c;
+  var foodSize = .5;
+  if (gameState.level >= 3){
+    foodSize = .1;
+  }
   var loader = new THREE.JSONLoader();
   // load a resource
   loader.load(
@@ -194,7 +202,7 @@ function addFoods() {
           // var object = new THREE.Mesh( geometry, material );
           var pcubeMat     = new Physijs.createMaterial( material, .9, .1);
           var bananaGeom = geometry;
-          bananaGeom.scale(.5, .5, .5);
+          bananaGeom.scale(foodSize, foodSize, foodSize);
           food = new Physijs.BoxMesh( bananaGeom, pcubeMat);
           food.castShadow    = true;
           food.receiveShadow = false;
@@ -218,6 +226,13 @@ function addFoods() {
 }
 
 function createDude(scale, X, Y, Z) {
+    if (gameState.level == 1 && dudes.length >= 3){
+        levelUp(2);
+        return;
+    } else if (gameState.level ==2 && dudes.length >=5){
+        levelUp(3);
+        return;
+    }
     var dude;
     var currentColor = colors[randomInt(0, colors.length-1)];
     var loader = new THREE.JSONLoader();
@@ -234,10 +249,6 @@ function createDude(scale, X, Y, Z) {
             dudeGeom.scale(scale, scale, scale);
             dude = new Physijs.BoxMesh( dudeGeom, pcubeMat);
             dudes.push(dude);
-						if(dudes.length == gameState.level + 1){
-							gameState.level += 1;
-							console.log("leveling up " + gameState.level);
-						}
             dude.castShadow    = true;
             dude.receiveShadow = false;
             dude.position.set(X, Y, Z);
@@ -245,7 +256,6 @@ function createDude(scale, X, Y, Z) {
             dude.addEventListener( 'collision',
         				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
 									var touched_poison=isPoison(other_object);
-									console.log("the size of the array is (before touching yellow banana)" + dudes.length);
           					if (other_object==food){
                         //add more food
                         foodX = randomInt(-18, 18);
@@ -313,6 +323,30 @@ function createDude(scale, X, Y, Z) {
         }
     );
 
+
+}
+
+function levelUp(newLevel){
+    console.log("level up to "+newLevel);
+    gameState.level = newLevel;
+
+    //clear all dudes and start again with just one
+    for (var i=0; i<dudes.length; i++){
+        scene.remove(dudes[i]);
+    }
+    dudes = [];
+    createDude(2,0,0,4);
+
+    //clear poisons and add new
+    for (var i=0; i<allPoison.length; i++){
+        scene.remove(allPoison[i]);
+    }
+    allPoison = [];
+    addPoison();
+
+    //clear food and add new food
+    scene.remove(food);
+    addFoods();
 
 }
 
@@ -445,10 +479,8 @@ function update_camera(){
 }
 
 function updateDude(){
-  if (gameState.energy < 3){
-    gameState.speed = 5;
-  } else if (dudes.length < 5){
-    gameState.speed = 8;
+  if (gameState.level >= 2){
+    gameState.speed = 20;
   }
   if(controls.left){
     dudes.forEach(function(element) {
@@ -470,7 +502,7 @@ function updateDude(){
         element.setLinearVelocity(new THREE.Vector3(0,0,gameState.speed));
     });
   }
-	
+
 }
 
 function animate() {
