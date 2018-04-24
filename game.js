@@ -316,23 +316,10 @@ function createDude(scale, X, Y, Z) {
 
 }
 
-function createEnergyBar(position) {
-    var lifeBarGeom   = new THREE.PlaneGeometry( gameState.energy, 1, 128 );
-    var lifeBarMat    = new THREE.MeshLambertMaterial({color: 0xff0000});
-    lifeBar           = new THREE.Mesh(lifeBarGeom, lifeBarMat);
-    lifeBar.position.set(position, 18, -5);
-    scene.add(lifeBar);
-}
-
 function reduceEnergy(){
+
+	document.getElementById("eb_"+gameState.energy).style.visibility="hidden";
   gameState.energy -= 1;
-  var position = (gameState.energy-10)/2;
-  scene.remove(lifeBar);
-  createEnergyBar(position, lifeBar);
-  // var differenceInSize = lifeBar.scale.x - lifeBar.scale.x*.8;
-  // lifeBar.scale.x = lifeBar.scale.x*.8;
-  // lifeBar.position.x -= (differenceInSize);
-  console.log('reducing energy');
   if (gameState.energy <1){
       console.log("game over");
   }
@@ -366,8 +353,6 @@ function init(){
     container.appendChild( renderer.domElement ); //puts the canvas onto the page
 
     window.addEventListener('resize', handleWindowResize, false);
-
-    createEnergyBar(0);
 
     var floorGeometry = new THREE.PlaneGeometry( 40, 40, 128 );
     var floorMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, opacity: 0, transparent: true  } );
@@ -424,10 +409,6 @@ function init(){
 
 
     StartSound.play();
-
-
-        // energyBar = document.getElementById("energy-bar");
-        // console.dir("the energybar is " + energyBar);
     }
 
     function handleWindowResize() {
@@ -489,6 +470,7 @@ function updateDude(){
         element.setLinearVelocity(new THREE.Vector3(0,0,gameState.speed));
     });
   }
+	
 }
 
 function animate() {
@@ -504,11 +486,12 @@ function animate() {
 		if(gameState.level <= 0){
 			gameOver = "GAME OVER!";
 		}
-
+/*
 		var info = document.getElementById("info");
 		info.innerHTML='<div style="font-size:24pt">Level: ' + gameState.level +
 		'  Energy:'+ gameState.energy + gameOver +
 				'</div>';
+*/
 }
 
 
