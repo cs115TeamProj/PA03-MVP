@@ -379,7 +379,7 @@ function initScene(){
 
 function createLoseScene(){
 		loseScene = initScene();
-		loseText = createSkyBox('lose.jpg',10);
+		loseText = createSkyBox('lose.jpg',7);
 		loseScene.add(loseText);
 		var light1 = createPointLight();
 		light1.position.set(0,200,20);
@@ -572,10 +572,10 @@ function animate() {
     renderer.clear();
   //  renderer.render(backgroundScene,backgroundCamera);
 	if (gameState.energy <1){
-		console.log("we lose")
+		console.log("we lose");
 		renderer.render( loseScene, loseCamera );
 	} else {
-		renderer.render( scene, camera );		
+		renderer.render( scene, camera );
 	}
 		//draw heads up display ..
 		var gameOver = "";
