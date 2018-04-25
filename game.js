@@ -561,6 +561,7 @@ function animate() {
 	if (gameState.energy <1){
 		console.log("we lose");
 		renderer.render( loseScene, loseCamera );
+		info.style.visibility="hidden";
 	} else {
 		renderer.render( scene, camera );
 	}
