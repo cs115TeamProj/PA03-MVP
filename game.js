@@ -16,28 +16,13 @@ var material = new THREE.MeshBasicMaterial({
 			});
 			mesh = new THREE.Mesh(geometry, material);
 
-// instantiate a loader
-//var loader = new THREE.TextureLoader();
-
-// load a resource
-//var texture = loader.load( 'images/jungle.jpg' );
-//var backgroundMesh = new THREE.Mesh(
-        //        new THREE.PlaneGeometry(75, 75, 10),
-        //        new THREE.MeshBasicMaterial({
-        //            map: texture
-          //      }));
-
-    //        backgroundMesh.material.depthTest = false;
-    //        backgroundMesh.material.depthWrite = false;
-
-
 var scene = new Physijs.Scene();
 var camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.z = 30;
 camera.lookAt(0,0,0);
 
 var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-var floor;
+var floor, ceiling;
 var wallBack, wallLeft, wallRight, wallFront;
 var dudes = [];
 var food;
@@ -366,7 +351,7 @@ function reduceEnergy(){
 
 function newWall(){
   var wallGeometry  = new THREE.PlaneGeometry( 40, 20, 100 );
-  var wallMaterial  = new THREE.MeshLambertMaterial({ color: 0x0000ff, opacity: 0, transparent: true } );
+  var wallMaterial  = new THREE.MeshLambertMaterial({ color: 0x0000ff, opacity: 0.5, transparent: true } );
   var pwallMat      = new Physijs.createMaterial( wallMaterial, .9, .5);
   return (new Physijs.BoxMesh( wallGeometry, pwallMat, 0));
 }
@@ -378,7 +363,6 @@ function positioningWall(wall, x, y, z){
 	wall.position.y = y;
 	wall.position.z = z;
 }
-
 
 function init(){
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -394,16 +378,22 @@ function init(){
     window.addEventListener('resize', handleWindowResize, false);
 
     var floorGeometry = new THREE.PlaneGeometry( 40, 40, 128 );
-    var floorMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, opacity: 0, transparent: true  } );
+    var floorMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000, opacity: 0.5, transparent: true  } );
     var pfloorMat     = new Physijs.createMaterial( floorMaterial, .9, .5);
     floor             = new Physijs.BoxMesh( floorGeometry, pfloorMat, 0);
+		ceiling 					= new Physijs.BoxMesh( floorGeometry, pfloorMat, 0);
 
-    floor.castShadow    = false;
-    floor.receiveShadow = true;
     floor.rotation.x    = -Math.PI/2;
     floor.position.y    = -6;
     floor.position.z    = -1;
     scene.add( floor );
+
+		ceiling.rotation.x 	= -Math.PI/2;
+		ceiling.position.y	=	14;
+		ceiling.position.z	= -1;
+		scene.add(ceiling);
+
+
 
     wallBack          = newWall();
     wallLeft          = newWall();
@@ -516,14 +506,9 @@ function animate() {
     updateDude();
     update_camera();
     scene.simulate();
-    renderer.clear();
-  //  renderer.render(backgroundScene,backgroundCamera);
+    // renderer.clear();
     renderer.render( scene, camera );
 		//draw heads up display ..
-		var gameOver = "";
-		if(gameState.level <= 0){
-			gameOver = "GAME OVER!";
-		}
 		info.innerHTML="Level: " + gameState.level;
 }
 
