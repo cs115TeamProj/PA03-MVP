@@ -506,7 +506,6 @@ function animate() {
     updateDude();
     update_camera();
     scene.simulate();
-    // renderer.clear();
     renderer.render( scene, camera );
 		//draw heads up display ..
 		info.innerHTML="Level: " + gameState.level;
