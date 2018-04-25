@@ -5,6 +5,7 @@ Physijs.scripts.ammo = '/js/ammo.js';
 var StartSound = new Audio("Sounds/StartSound.wav");
 var ExplodeSound = new Audio("Sounds/ExplodeSound.wav");
 var ExpandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
+var endScene, loseScene, startScene, endCamera, loseCamera, startCamera, endText, startText;
 
 var geometry = new THREE.SphereGeometry(50, 60, 40);
 geometry.scale(-1, 1, 1);
@@ -98,6 +99,27 @@ window.addEventListener("keydown", function(event){
         }; break;
     };
 });
+
+function createSkyBox(image,k){
+	// creating a textured plane which receives shadows
+	var geometry = new THREE.SphereGeometry( 80, 80, 80 );
+	var texture = new THREE.TextureLoader().load( '../images/'+image );
+	texture.wrapS = THREE.RepeatWrapping;
+	texture.wrapT = THREE.RepeatWrapping;
+	texture.repeat.set( k, k );
+	var material = new THREE.MeshLambertMaterial( { color: 0xffffff,  map: texture ,side:THREE.DoubleSide} );
+	//var pmaterial = new Physijs.createMaterial(material,0.9,0.5);
+	//var mesh = new THREE.Mesh( geometry, material );
+	var mesh = new THREE.Mesh( geometry, material, 0 );
+
+	mesh.receiveShadow = false;
+
+
+	return mesh
+	// we need to rotate the mesh 90 degrees to make it horizontal not vertical
+
+
+}
 
 window.addEventListener("keyup", function(event){
     switch(event.key)
@@ -349,13 +371,49 @@ function levelUp(newLevel){
     addFoods();
 
 }
+function initScene(){
+	//scene = new THREE.Scene();
+	var scene = new Physijs.Scene();
+	return scene;
+}
+
+function createLoseScene(){
+		loseScene = initScene();
+		loseText = createSkyBox('lose.jpg',10);
+		loseScene.add(loseText);
+		var light1 = createPointLight();
+		light1.position.set(0,200,20);
+		loseScene.add(light1);
+		loseCamera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		loseCamera.position.set(0,50,1);
+		loseCamera.lookAt(0,0,0);
+	}
+
+
+	function createPointLight(){
+		var light;
+		light = new THREE.PointLight( 0xffffff);
+		light.castShadow = true;
+		//Set up shadow properties for the light
+		light.shadow.mapSize.width = 2048;  // default
+		light.shadow.mapSize.height = 2048; // default
+		light.shadow.camera.near = 0.5;       // default
+		light.shadow.camera.far = 500      // default
+		return light;
+	}
+
+
 
 function reduceEnergy(){
 
 	document.getElementById("eb_"+gameState.energy).style.visibility="hidden";
   gameState.energy -= 1;
   if (gameState.energy <1){
-      console.log("game over");
+		console.log("we lose")
+		createLoseScene();
+		renderer.render( loseScene, loseCamera );
+
+
   }
 }
 
