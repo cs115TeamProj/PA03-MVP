@@ -2,9 +2,11 @@ Physijs.scripts.worker = '/js/physijs_worker.js';
 Physijs.scripts.ammo = '/js/ammo.js';
 
 //sounds
-var StartSound = new Audio("Sounds/StartSound.wav");
-var ExplodeSound = new Audio("Sounds/ExplodeSound.wav");
-var ExpandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
+var StartSound 		= new Audio("Sounds/StartSound.wav");
+var ExplodeSound 	= new Audio("Sounds/ExplodeSound.wav");
+var ExpandSounds 	= [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
+var LoseSound			= new Audio("Sounds/LoseSound.wav");
+var PoisonSound 	= new Audio("Sounds/PoisonSound.wav");
 
 var geometry = new THREE.SphereGeometry(50, 60, 40);
 geometry.scale(-1, 1, 1);
@@ -226,6 +228,7 @@ function addFoods() {
 }
 
 function createDude(scale, X, Y, Z) {
+
     if (gameState.level == 1 && dudes.length >= 3){
         levelUp(2);
         return;
@@ -278,7 +281,7 @@ function createDude(scale, X, Y, Z) {
 																console.log("creating dude");
                             }
                             scale = 1;
-                            ExplodeSound.play();
+                            ExpandSounds[randomInt(0, ExpandSounds.length-1)].play();
                         } //in this else statement it messes up the size of the array
 												else {
                             dudeIndex = dudes.indexOf(this);
@@ -305,7 +308,7 @@ function createDude(scale, X, Y, Z) {
                         // scene.remove(this);
                         // dudes.splice(dudeIndex, 1);
                         // createDude(scale, dudeX, dudeY, dudeZ);
-                        ExpandSounds[randomInt(0, ExpandSounds.length-1)].play();
+                        PoisonSound.play();
                     }
         				}
         		)
@@ -327,6 +330,7 @@ function createDude(scale, X, Y, Z) {
 }
 
 function levelUp(newLevel){
+		ExplodeSound.play();
     console.log("level up to "+newLevel);
     gameState.level = newLevel;
 
@@ -355,6 +359,7 @@ function reduceEnergy(){
 	document.getElementById("eb_"+gameState.energy).style.visibility="hidden";
   gameState.energy -= 1;
   if (gameState.energy <1){
+			LoseSound.play()
       console.log("game over");
   }
 }
