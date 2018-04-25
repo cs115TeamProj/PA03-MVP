@@ -410,7 +410,6 @@ function reduceEnergy(){
   gameState.energy -= 1;
   if (gameState.energy <1){
 		console.log("we lose")
-		createLoseScene();
 		renderer.render( loseScene, loseCamera );
 
 
@@ -487,6 +486,7 @@ function init(){
     scene.add( light2 );
 
     scene.add(mesh);
+		createLoseScene();
 
     var posionG       = new THREE.SphereGeometry( .5, 10, 10 );
     var pMaterial     = new THREE.MeshLambertMaterial({ color: 000000 });
@@ -571,7 +571,12 @@ function animate() {
     scene.simulate();
     renderer.clear();
   //  renderer.render(backgroundScene,backgroundCamera);
-    renderer.render( scene, camera );
+	if (gameState.energy <1){
+		console.log("we lose")
+		renderer.render( loseScene, loseCamera );
+	} else {
+		renderer.render( scene, camera );		
+	}
 		//draw heads up display ..
 		var gameOver = "";
 		if(gameState.level <= 0){
