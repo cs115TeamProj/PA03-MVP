@@ -2,11 +2,12 @@ Physijs.scripts.worker = '/js/physijs_worker.js';
 Physijs.scripts.ammo = '/js/ammo.js';
 
 //sounds
-var StartSound 		= new Audio("Sounds/StartSound.wav");
-var ExplodeSound 	= new Audio("Sounds/ExplodeSound.wav");
-var ExpandSounds 	= [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
+var StartSound = new Audio("Sounds/StartSound.wav");
+var ExplodeSound = new Audio("Sounds/ExplodeSound.wav");
+var ExpandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
 var LoseSound			= new Audio("Sounds/LoseSound.wav");
 var PoisonSound 	= new Audio("Sounds/PoisonSound.wav");
+var endScene, loseScene, startScene, endCamera, loseCamera, startCamera, endText, startText;
 
 var geometry = new THREE.SphereGeometry(50, 60, 40);
 geometry.scale(-1, 1, 1);
@@ -15,21 +16,6 @@ var material = new THREE.MeshBasicMaterial({
 				map: new THREE.TextureLoader().load('../images/ocean.jpg') //sets background iamge
 			});
 			mesh = new THREE.Mesh(geometry, material);
-
-// instantiate a loader
-//var loader = new THREE.TextureLoader();
-
-// load a resource
-//var texture = loader.load( 'images/jungle.jpg' );
-//var backgroundMesh = new THREE.Mesh(
-        //        new THREE.PlaneGeometry(75, 75, 10),
-        //        new THREE.MeshBasicMaterial({
-        //            map: texture
-          //      }));
-
-    //        backgroundMesh.material.depthTest = false;
-    //        backgroundMesh.material.depthWrite = false;
-
 
 var scene = new Physijs.Scene();
 var camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -100,6 +86,27 @@ window.addEventListener("keydown", function(event){
         }; break;
     };
 });
+
+function createSkyBox(image,k){
+	// creating a textured plane which receives shadows
+	var geometry = new THREE.SphereGeometry( 80, 80, 80 );
+	var texture = new THREE.TextureLoader().load( '../images/'+image );
+	texture.wrapS = THREE.RepeatWrapping;
+	texture.wrapT = THREE.RepeatWrapping;
+	texture.repeat.set( k, k );
+	var material = new THREE.MeshLambertMaterial( { color: 0xffffff,  map: texture ,side:THREE.DoubleSide} );
+	//var pmaterial = new Physijs.createMaterial(material,0.9,0.5);
+	//var mesh = new THREE.Mesh( geometry, material );
+	var mesh = new THREE.Mesh( geometry, material, 0 );
+
+	mesh.receiveShadow = false;
+
+
+	return mesh
+	// we need to rotate the mesh 90 degrees to make it horizontal not vertical
+
+
+}
 
 window.addEventListener("keyup", function(event){
     switch(event.key)
@@ -353,6 +360,38 @@ function levelUp(newLevel){
     addFoods();
 
 }
+function initScene(){
+	//scene = new THREE.Scene();
+	var scene = new Physijs.Scene();
+	return scene;
+}
+
+function createLoseScene(){
+		loseScene = initScene();
+		loseText = createSkyBox('lose.jpg',7);
+		loseScene.add(loseText);
+		var light1 = createPointLight();
+		light1.position.set(0,200,20);
+		loseScene.add(light1);
+		loseCamera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		loseCamera.position.set(0,50,1);
+		loseCamera.lookAt(0,0,0);
+	}
+
+
+	function createPointLight(){
+		var light;
+		light = new THREE.PointLight( 0xffffff);
+		light.castShadow = true;
+		//Set up shadow properties for the light
+		light.shadow.mapSize.width = 2048;  // default
+		light.shadow.mapSize.height = 2048; // default
+		light.shadow.camera.near = 0.5;       // default
+		light.shadow.camera.far = 500      // default
+		return light;
+	}
+
+
 
 function reduceEnergy(){
 
@@ -434,6 +473,7 @@ function init(){
     scene.add( light2 );
 
     scene.add(mesh);
+		createLoseScene();
 
     var posionG       = new THREE.SphereGeometry( .5, 10, 10 );
     var pMaterial     = new THREE.MeshLambertMaterial({ color: 000000 });
@@ -518,7 +558,12 @@ function animate() {
     scene.simulate();
     renderer.clear();
   //  renderer.render(backgroundScene,backgroundCamera);
-    renderer.render( scene, camera );
+	if (gameState.energy <1){
+		console.log("we lose");
+		renderer.render( loseScene, loseCamera );
+	} else {
+		renderer.render( scene, camera );
+	}
 		//draw heads up display ..
 		var gameOver = "";
 		if(gameState.level <= 0){
