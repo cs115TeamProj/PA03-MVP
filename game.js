@@ -23,7 +23,7 @@ camera.position.z = 30;
 camera.lookAt(0,0,0);
 
 var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-var floor;
+var floor, ceiling;
 var wallBack, wallLeft, wallRight, wallFront;
 var dudes = [];
 var food;
@@ -461,13 +461,15 @@ function init(){
     var floorMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, opacity: 0, transparent: true  } );
     var pfloorMat     = new Physijs.createMaterial( floorMaterial, .9, .5);
     floor             = new Physijs.BoxMesh( floorGeometry, pfloorMat, 0);
+		ceiling						= new Physijs.BoxMesh( floorGeometry, pfloorMat, 0);
 
-    floor.castShadow    = false;
-    floor.receiveShadow = true;
     floor.rotation.x    = -Math.PI/2;
     floor.position.y    = -6;
     floor.position.z    = -1;
     scene.add( floor );
+		ceiling.rotation.x 	= Math.PI/2;
+		ceiling.position.y	= 20;
+		scene.add(ceiling);
 
     wallBack          = newWall();
     wallLeft          = newWall();
