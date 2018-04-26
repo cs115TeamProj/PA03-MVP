@@ -113,14 +113,14 @@ function createSkyBox(image,k){
 }
 function createStartBox(image){
 	// creating a textured plane which receives shadows
-	var planeGeometry = new THREE.PlaneGeometry( 80, 80, 80 );
+	var planeGeometry = new THREE.PlaneGeometry( 60, 80, 80 );
 	var texture = new THREE.TextureLoader().load( '../images/'+image );
 	var planeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff,  map: texture ,side:THREE.DoubleSide} );
 	planeMesh = new THREE.Mesh( planeGeometry, planeMaterial );
 	scene.add(planeMesh);
 	planeMesh.position.x = 0;
-	planeMesh.position.y = 0;
-	planeMesh.position.z = 5;
+	planeMesh.position.y = 5;
+	planeMesh.position.z = 0;
 	planeMesh.rotation.x = -Math.PI/2;
 	planeMesh.receiveShadow = false;
 	return planeMesh
@@ -418,8 +418,6 @@ function createLoseScene(){
 		return light;
 	}
 
-
-
 function reduceEnergy(){
 
 	document.getElementById("eb_"+gameState.energy).style.visibility="hidden";
@@ -445,7 +443,6 @@ function positioningWall(wall, x, y, z){
 	wall.position.y = y;
 	wall.position.z = z;
 }
-
 
 function init(){
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -579,6 +576,7 @@ function updateDude(){
 
 }
 var info = document.getElementById("game_info");
+var gameText = document.getElementById("AllText");
 
 function animate() {
     requestAnimationFrame( animate );
@@ -590,18 +588,21 @@ function animate() {
 						console.log("main scene");
 						updateDude();
 						update_camera();
+						info.innerHTML="Level: " + gameState.level;
+						gameText.style.visibility="visible";
 						renderer.render( scene, camera );
 				}; break;
 				case ("start"):{
 						console.log("start scene");
+						gameText.style.visibility="hidden";
 						renderer.render( startScene, startCamera );
 				}; break;
 				case ("lose"): {
 						renderer.render( loseScene, loseCamera );
-						info.style.visibility="hidden";
+						gameText.style.visibility="hidden";
 				}; break;
 		}
-		info.innerHTML="Level: " + gameState.level;
+
 }
 
 
