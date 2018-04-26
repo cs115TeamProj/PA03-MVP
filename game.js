@@ -42,7 +42,8 @@ var controls = {
     camLeft: false,
     camRight: false,
     camForward: false,
-    camBack: false
+    camBack: false, 
+    play: true
 };
 
 var colors=[];
@@ -83,6 +84,9 @@ window.addEventListener("keydown", function(event){
         }; break;
         case("ArrowDown"):{
           controls.camBack = true;
+        }; break; 
+        case ("p"):{
+        	controls.play= false;
         }; break;
     };
 });
@@ -134,6 +138,9 @@ window.addEventListener("keyup", function(event){
         }; break;
         case("ArrowDown"):{
           controls.camBack = false;
+        }; break; 
+        case ("p"):{
+        	controls.play= false;
         }; break;
     };
 });
@@ -366,6 +373,18 @@ function initScene(){
 	return scene;
 }
 
+function createStartScene(){
+		startScene = initScene();
+		startText = createSkyBox('START.png',7);
+		startScene.add(startText);
+		var light1 = createPointLight();
+		light1.position.set(0,200,20);
+		startScene.add(light1);
+		startCamera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		startCamera.position.set(0,50,1);
+		startCamera.lookAt(0,0,0);
+	}
+
 function createLoseScene(){
 		loseScene = initScene();
 		loseText = createSkyBox('lose.jpg',7);
@@ -474,6 +493,7 @@ function init(){
 
     scene.add(mesh);
 		createLoseScene();
+		createStartScene();
 
     var posionG       = new THREE.SphereGeometry( .5, 10, 10 );
     var pMaterial     = new THREE.MeshLambertMaterial({ color: 000000 });
@@ -520,6 +540,7 @@ function update_camera(){
     camera.translateZ(1);
     camera.__dirtyPosition = true;
   }
+
   camera.lookAt(0,0,0);
 }
 
@@ -557,7 +578,10 @@ function animate() {
     update_camera();
     scene.simulate();
     renderer.clear();
-  //  renderer.render(backgroundScene,backgroundCamera);
+  //  renderer.render(backgroundScene,backgroundCamera); 
+  	if (controls.play){
+  		renderer.render(startScene, startCamera);
+  	}
 	if (gameState.energy <1){
 		console.log("we lose");
 		renderer.render( loseScene, loseCamera );
