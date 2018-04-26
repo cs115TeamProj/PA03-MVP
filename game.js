@@ -400,6 +400,7 @@ function reduceEnergy(){
   if (gameState.energy <1){
 			LoseSound.play()
       console.log("game over");
+			gameState.scene="lose";
   }
 }
 
@@ -557,18 +558,15 @@ function animate() {
     update_camera();
     scene.simulate();
     renderer.clear();
-  //  renderer.render(backgroundScene,backgroundCamera);
-	if (gameState.energy <1){
-		console.log("we lose");
-		renderer.render( loseScene, loseCamera );
-		info.style.visibility="hidden";
-	} else {
-		renderer.render( scene, camera );
-	}
-		//draw heads up display ..
-		var gameOver = "";
-		if(gameState.level <= 0){
-			gameOver = "GAME OVER!";
+  	switch(gameState.scene){
+				case ("main"): {
+					console.log("main scene")
+						renderer.render( scene, camera );
+				}; break;
+				case ("lose"): {
+						renderer.render( loseScene, loseCamera );
+						info.style.visibility="hidden";
+				}; break;
 		}
 		info.innerHTML="Level: " + gameState.level;
 }
