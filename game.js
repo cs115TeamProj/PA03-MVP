@@ -32,7 +32,7 @@ var allPoison=[];
 var poison;
 var light1 = new THREE.AmbientLight( 0xffffff,0.95);
 var light2 = new THREE.SpotLight( 0x0000ff);
-var gameState = {level:1, energy:10, speed: 10, reset: false, scene:'main', camera:'none' };
+var gameState = {level:1, energy:10, speed: 10, reset: false, scene:'start', camera:'none' };
 
 var controls = {
     left: false,
@@ -83,12 +83,16 @@ window.addEventListener("keydown", function(event){
         }; break;
         case("ArrowDown"):{
           controls.camBack = true;
+        }; break; 
+        case ("p"):{
+        	gameState.scene='main'; 
         }; break;
     };
 });
 
 function createSkyBox(image,k){
 	// creating a textured plane which receives shadows
+	
 	var geometry = new THREE.SphereGeometry( 80, 80, 80 );
 	var texture = new THREE.TextureLoader().load( '../images/'+image );
 	texture.wrapS = THREE.RepeatWrapping;
@@ -107,6 +111,24 @@ function createSkyBox(image,k){
 
 
 }
+function createStartBox(image,k){
+	// creating a textured plane which receives shadows
+	var planeGeometry = new THREE.PlaneGeometry( 80, 80, 80 );
+	var texture = new THREE.TextureLoader().load( '../images/'+image );
+	var planeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff,  map: texture ,side:THREE.DoubleSide} );
+	planeMesh = new THREE.Mesh( planeGeometry, planeMaterial );
+	scene.add(planeMesh);
+	planeMesh.position.x = 0;
+	planeMesh.position.y = 0;
+	planeMesh.position.z = 5;
+	planeMesh.rotation.x = -Math.PI/2;
+	planeMesh.receiveShadow = false;
+	return planeMesh
+	
+
+
+}
+
 
 window.addEventListener("keyup", function(event){
     switch(event.key)
@@ -365,6 +387,17 @@ function initScene(){
 	var scene = new Physijs.Scene();
 	return scene;
 }
+function createStartScene(){
+		startScene = initScene();
+		startText = createStartBox('START.png',7);
+		startScene.add(startText);
+		var light1 = createPointLight();
+		light1.position.set(0,200,20);
+		startScene.add(light1);
+		startCamera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		startCamera.position.set(0,50,1);
+		startCamera.lookAt(0,0,0);
+	}
 
 function createLoseScene(){
 		loseScene = initScene();
@@ -475,6 +508,7 @@ function init(){
 
     scene.add(mesh);
 		createLoseScene();
+		createStartScene();
 
     var posionG       = new THREE.SphereGeometry( .5, 10, 10 );
     var pMaterial     = new THREE.MeshLambertMaterial({ color: 000000 });
@@ -562,6 +596,10 @@ function animate() {
 				case ("main"): {
 					console.log("main scene")
 						renderer.render( scene, camera );
+				}; break;
+				case ("start"):{
+					console.log("start scene")
+						renderer.render( startScene, startCamera );
 				}; break;
 				case ("lose"): {
 						renderer.render( loseScene, loseCamera );
