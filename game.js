@@ -1,19 +1,19 @@
-Physijs.scripts.worker = '/js/physijs_worker.js';
-Physijs.scripts.ammo = '/js/ammo.js';
+Physijs.scripts.worker = './js/physijs_worker.js';
+Physijs.scripts.ammo = './js/ammo.js';
 
 //sounds
-var StartSound = new Audio("Sounds/StartSound.wav");
-var ExplodeSound = new Audio("Sounds/ExplodeSound.wav");
-var ExpandSounds = [new Audio("Sounds/moveSound1.wav"), new Audio("Sounds/moveSound2.wav"), new Audio("Sounds/moveSound3.wav"), new Audio("Sounds/moveSound4.wav"), new Audio("Sounds/moveSound5.wav")];
-var LoseSound			= new Audio("Sounds/LoseSound.wav");
-var PoisonSound 	= new Audio("Sounds/PoisonSound.wav");
+var StartSound = new Audio("./Sounds/StartSound.wav");
+var ExplodeSound = new Audio("./Sounds/ExplodeSound.wav");
+var ExpandSounds = [new Audio("./Sounds/moveSound1.wav"), new Audio("./Sounds/moveSound2.wav"), new Audio("./Sounds/moveSound3.wav"), new Audio("./Sounds/moveSound4.wav"), new Audio("./Sounds/moveSound5.wav")];
+var LoseSound			= new Audio("./Sounds/LoseSound.wav");
+var PoisonSound 	= new Audio("./Sounds/PoisonSound.wav");
 var endScene, loseScene, startScene, endCamera, loseCamera, startCamera, endText, startText;
 
 var geometry = new THREE.SphereGeometry(50, 60, 40);
 geometry.scale(-1, 1, 1);
 
 var material = new THREE.MeshBasicMaterial({
-				map: new THREE.TextureLoader().load('../images/ocean.jpg') //sets background iamge
+				map: new THREE.TextureLoader().load('./images/ocean.jpg') //sets background iamge
 			});
 			mesh = new THREE.Mesh(geometry, material);
 
@@ -94,7 +94,7 @@ function createSkyBox(image,k){
 	// creating a textured plane which receives shadows
 
 	var geometry = new THREE.SphereGeometry( 80, 80, 80 );
-	var texture = new THREE.TextureLoader().load( '../images/'+image );
+	var texture = new THREE.TextureLoader().load( './images/'+image );
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
 	texture.repeat.set( k, k );
@@ -114,7 +114,7 @@ function createSkyBox(image,k){
 function createStartBox(image){
 	// creating a textured plane which receives shadows
 	var planeGeometry = new THREE.PlaneGeometry( 60, 80, 80 );
-	var texture = new THREE.TextureLoader().load( '../images/'+image );
+	var texture = new THREE.TextureLoader().load( './images/'+image );
 	var planeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff,  map: texture ,side:THREE.DoubleSide} );
 	planeMesh = new THREE.Mesh( planeGeometry, planeMaterial );
 	scene.add(planeMesh);
@@ -183,7 +183,7 @@ function addPoison() {
       for(var i = 0; i < poisonCount; i++){
           loader.load(
               // resource URL
-              'models/banana.json',
+              './models/banana.json',
               // onLoad callback
               function ( geometry, materials ) {
                   var material = new THREE.MeshLambertMaterial( { color: 0x000000} );
@@ -225,7 +225,7 @@ function addFoods() {
   // load a resource
   loader.load(
       // resource URL
-      'models/banana.json',
+      './models/banana.json',
       // onLoad callback
       function ( geometry, materials ) {
           var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
@@ -270,7 +270,7 @@ function createDude(scale, X, Y, Z) {
     // load a resource
     loader.load(
         // resource URL
-        'models/suzanne.json',
+        './models/suzanne.json',
         // onLoad callback
         function ( geometry, materials ) {
             var material = new THREE.MeshLambertMaterial( { color:currentColor ,opacity: 0.95,transparent:true});
@@ -383,7 +383,7 @@ function levelUp(newLevel){
 }
 function createStartScene(){
 		startScene = new Physijs.Scene();
-		startText = createStartBox("START.png");
+		startText = createStartBox("./START.png");
 		startScene.add(startText);
 		var light1 = createPointLight();
 		light1.position.set(0,200,20);
@@ -395,7 +395,7 @@ function createStartScene(){
 
 function createLoseScene(){
 		loseScene = new Physijs.Scene();
-		loseText = createSkyBox('lose.jpg',7);
+		loseText = createSkyBox('./lose.jpg',7);
 		loseScene.add(loseText);
 		var light1 = createPointLight();
 		light1.position.set(0,200,20);
