@@ -310,7 +310,7 @@ function createDude(scale, X, Y, Z) {
                             }
                             scale = 1;
                             ExpandSounds[randomInt(0, ExpandSounds.length-1)].play();
-                        } //in this else statement it messes up the size of the array
+                        } 
 												else {
                             dudeIndex = dudes.indexOf(this);
                             scene.remove(this);
@@ -327,15 +327,6 @@ function createDude(scale, X, Y, Z) {
                         touched_poison.position.set(foodX, 0, foodY);
                         touched_poison.__dirtyPosition = true;
                         reduceEnergy();
-                        // //made dude bigger by deleting dude and creating a new bigger one in its place because physijs is a doofus
-                        // var dudeX = dude.position.x;
-                        // var dudeY = dude.position.y;
-                        // var dudeZ = dude.position.z;
-                        // var dudeIndex;
-                        // dudeIndex = dudes.indexOf(this);
-                        // scene.remove(this);
-                        // dudes.splice(dudeIndex, 1);
-                        // createDude(scale, dudeX, dudeY, dudeZ);
                         PoisonSound.play();
                     }
         				}
