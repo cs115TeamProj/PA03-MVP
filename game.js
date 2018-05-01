@@ -1,5 +1,5 @@
-Physijs.scripts.worker = '/physijs_worker.js';
-Physijs.scripts.ammo = '/ammo.js';
+Physijs.scripts.worker = './physijs_worker.js';
+Physijs.scripts.ammo = './ammo.js';
 
 //sounds
 var StartSound = new Audio("./Sounds/StartSound.wav");
